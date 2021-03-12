@@ -48,7 +48,7 @@ namespace CircusGroupsBot
                 .AddSingleton<DiscordSocketClient>(discord)
                 .AddSingleton<CommandService>(commandService)
                 .AddSingleton<CommandHandler>()
-                .AddSingleton<ILogger>(logger)
+                .AddSingleton(logger)
                 .BuildServiceProvider();
         }
     }

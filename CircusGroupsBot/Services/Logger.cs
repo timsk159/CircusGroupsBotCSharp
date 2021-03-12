@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CircusGroupsBot.Services
 {
-    public class Logger : ILogger
+    public class Logger
     {
         public Logger(DiscordSocketClient client, CommandService command)
         {
@@ -15,7 +15,7 @@ namespace CircusGroupsBot.Services
             command.Log += LogAsync;
         }
 
-        public Task LogAsync(LogMessage message)
+        private Task LogAsync(LogMessage message)
         {
             if (message.Exception is CommandException cmdException)
             {
@@ -29,10 +29,5 @@ namespace CircusGroupsBot.Services
 
             return Task.CompletedTask;
         }
-    }
-
-    public interface ILogger
-    {
-        Task LogAsync(LogMessage message);
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CircusGroupsBot.Services
 {
-    public class CommandHandler : ICommandHandler
+    public class CommandHandler
     {
         private int argPos = 0;
         private readonly DiscordSocketClient client;
@@ -55,10 +55,5 @@ namespace CircusGroupsBot.Services
             // the command failed, let's notify the user that something happened.
             await context.Channel.SendMessageAsync($"error: {result}");
         }
-    }
-
-    public interface ICommandHandler
-    {
-        Task InitAsync();
     }
 }
