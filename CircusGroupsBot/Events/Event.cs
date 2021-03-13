@@ -29,7 +29,7 @@ namespace CircusGroupsBot.Events
             this.Runners = runners;
         }
 
-        public string GetAnncouncementString()
+        public string GetAnnouncementString()
         {
             return $@"@everyone
 {EventName}
