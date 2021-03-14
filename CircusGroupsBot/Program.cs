@@ -4,7 +4,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +30,7 @@ namespace CircusGroupsBot
             using (var services = ConfigureServices())
             {
                 var client = services.GetRequiredService<DiscordSocketClient>();
+                var myToken = Environment.GetEnvironmentVariable("circusBotToken");
 
                 await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("circusBotToken"));
                 await client.StartAsync();
