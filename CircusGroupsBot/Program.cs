@@ -22,8 +22,8 @@ namespace CircusGroupsBot
             using (var services = ConfigureServices())
             {
                 var logger = services.GetRequiredService<Logger>();
-                services.GetRequiredService<DiscordSocketClient>().Log += logger.LogAsync;
-                services.GetRequiredService<CommandService>().Log += logger.LogAsync;
+                services.GetRequiredService<DiscordSocketClient>().Log += logger.Log;
+                services.GetRequiredService<CommandService>().Log += logger.Log;
 
                 var client = services.GetRequiredService<DiscordSocketClient>();
                 var myToken = Environment.GetEnvironmentVariable("circusBotToken");
