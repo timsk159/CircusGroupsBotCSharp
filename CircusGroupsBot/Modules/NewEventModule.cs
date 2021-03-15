@@ -15,7 +15,7 @@ namespace CircusGroupsBot.Modules
         {
             var newEvent = new Event(Context.User, eventName, dateandtime, description, tanks, healers, dds);
 
-            return ReplyAsync(newEvent.GetAnncouncementString());
+            return ReplyAsync(newEvent.GetAnnouncementString());
         }
     }
 }
