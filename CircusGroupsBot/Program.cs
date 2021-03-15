@@ -2,6 +2,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
@@ -45,6 +46,7 @@ namespace CircusGroupsBot
         private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                .AddDbContext<CircusDbContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Test"))
                 .AddSingleton<DiscordSocketClient>(discord)
                 .AddSingleton<CommandService>(commandService)
                 .AddSingleton<CommandHandler>()
