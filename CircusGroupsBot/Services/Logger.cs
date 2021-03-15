@@ -1,20 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace CircusGroupsBot.Services
 {
-    class Logger
+    public class Logger
     {
-        public Logger(DiscordSocketClient client, CommandService command)
-        {
-            client.Log += LogAsync;
-            command.Log += LogAsync;
-        }
-        private Task LogAsync(LogMessage message)
+        public Task LogAsync(LogMessage message)
         {
             if (message.Exception is CommandException cmdException)
             {
@@ -28,6 +22,5 @@ namespace CircusGroupsBot.Services
 
             return Task.CompletedTask;
         }
-
     }
 }
