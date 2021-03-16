@@ -28,18 +28,8 @@ namespace CircusGroupsBot.Events
         [Required]
         public int Runners { get; set; }
 
-        public Event(IUser leader, string eventName, string dateAndTime, string description = "", 
-            int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
-        {
-            this.LeaderUserID = leader.Id;
-            this.EventName = eventName;
-            this.DateAndTime = dateAndTime;
-            this.Description = description;
-            this.Tanks = tanks;
-            this.Healers = healers;
-            this.Dds = dds;
-            this.Runners = runners;
-        }
+        public Event(IUser leader, string eventName, string dateAndTime, string description = "",
+            int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leader.Id, eventName, dateAndTime, description, tanks, healers, dds, runners) { }
 
         public Event(ulong leaderUserID, string eventName, string dateAndTime, string description = "",
     int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
