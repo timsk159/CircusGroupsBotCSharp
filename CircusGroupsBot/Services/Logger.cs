@@ -8,7 +8,7 @@ namespace CircusGroupsBot.Services
 {
     public class Logger
     {
-        public Task LogAsync(LogMessage message)
+        public Task Log(LogMessage message)
         {
             if (message.Exception is CommandException cmdException)
             {

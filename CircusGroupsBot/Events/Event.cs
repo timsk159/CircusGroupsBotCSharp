@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Discord;
 
@@ -7,25 +9,38 @@ namespace CircusGroupsBot.Events
 {
     public class Event
     {
-        public IUser Leader { get; private set; }
-        public string EventName { get; private set; }
-        public string DateAndTime { get; private set; }
-        public string Description { get; private set; }
-        public int Tanks { get; private set; }
-        public int Healers { get; private set; }
-        public int DDs { get; private set; }
-        public int Runners { get; private set; }
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public ulong LeaderUserID { get; set; }
+        [Required]
+        public string EventName { get; set; }
+        [Required]
+        public string DateAndTime { get; set; }
+        [Required]
+        public string Description { get; set; }
+        [Required]
+        public int Tanks { get; set; }
+        [Required]
+        public int Healers { get; set; }
+        [Required]
+        public int Dds { get; set; }
+        [Required]
+        public int Runners { get; set; }
 
-        public Event(IUser leader, string eventName, string dateandtime, string description = "", 
-            int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
+        public Event(IUser leader, string eventName, string dateAndTime, string description = "",
+            int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leader.Id, eventName, dateAndTime, description, tanks, healers, dds, runners) { }
+
+        public Event(ulong leaderUserID, string eventName, string dateAndTime, string description = "",
+    int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
         {
-            this.Leader = leader;
+            this.LeaderUserID = leaderUserID;
             this.EventName = eventName;
-            this.DateAndTime = dateandtime;
+            this.DateAndTime = dateAndTime;
             this.Description = description;
             this.Tanks = tanks;
             this.Healers = healers;
-            this.DDs = dds;
+            this.Dds = dds;
             this.Runners = runners;
         }
 
@@ -35,7 +50,7 @@ namespace CircusGroupsBot.Events
 {EventName}
 Scheduled For: {DateAndTime}
 
-Leader: {Leader.Mention}
+Leader: <@{LeaderUserID}>
 {Description}
 ";
         }
