@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CircusGroupsBot.Events;
 using CircusGroupsBot.Services;
 using Discord;
+using System.Linq;
 
 namespace CircusGroupsBot.Modules
 {
@@ -30,7 +31,12 @@ namespace CircusGroupsBot.Modules
             DbContext.Events.Add(newEvent);
             DbContext.SaveChanges();
 
-            return ReplyAsync(newEvent.GetAnnouncementString());
+            var allRoleReactions = Role.AllRoles.Select(e => e.GetEmoji());
+
+            var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
+            messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactions.ToArray()));
+
+            return messageTask;
         }
     }
 }
