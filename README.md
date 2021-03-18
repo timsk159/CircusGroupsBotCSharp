@@ -36,6 +36,8 @@ https://visualstudio.microsoft.com/
 - Open HeidiSQL (installed with MariaDB)
 - Create a new database locally, make sure you use the same password as above
 - Add your discord bot to a server
+- Open the .sln in Visual Studio
+- In the package manager console, type: Update-Database
 - Run the project in visual studio
 - You can try typing "$testcommand" in your discord server to see if the bot is alive and well.
 
