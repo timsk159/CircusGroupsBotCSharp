@@ -9,7 +9,6 @@ namespace CircusGroupsBot.Services
 {
     public class CommandHandler
     {
-        private int argPos = 0;
         private readonly DiscordSocketClient client;
         private readonly CommandService commands;
         private readonly IServiceProvider services;
@@ -32,6 +31,8 @@ namespace CircusGroupsBot.Services
         private async Task MessageReceivedAsync(SocketMessage messageParam)
         {
             var message = messageParam as SocketUserMessage;
+
+            int argPos = 0;
 
             if (message == null ||
                 !(message.HasCharPrefix('$', ref argPos) ||
