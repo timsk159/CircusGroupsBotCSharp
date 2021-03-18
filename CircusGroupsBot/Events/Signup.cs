@@ -1,16 +1,19 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace CircusGroupsBot.Events
 {
-    class Signup
+    [Owned]
+    public class Signup
     {
-        [Key]
-        public int Id { get; set; }
-        public Role Role { get; set; }
+        public virtual Role Role { get; set; }
         public bool IsRequired { get; set; }
+
+        public Signup() { }
 
         public Signup(Role role, bool isRequired)
         {

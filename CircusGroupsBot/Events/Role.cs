@@ -7,10 +7,10 @@ using System.Text;
 
 namespace CircusGroupsBot.Events
 {
-    class Role
+    public class Role
     {
         [Key]
-        public int Id { get; set; }
+        public int RoleId { get; set; }
         public string Name { get; set; }
         public string EmojiString { get; set; }
 
@@ -20,20 +20,21 @@ namespace CircusGroupsBot.Events
             this.EmojiString = emojiString;
         }
 
-        public Emoji GetEmoji()
-        {
-            return new Emoji(EmojiString);
-        }
+        public static readonly Role Tank = new Role("Tank", "🛡️");
+        public static readonly Role Healer = new Role("Healer", "🚑");
+        public static readonly Role DD = new Role("DD", "⚔️");
+        public static readonly Role Runner = new Role("Runner", "🏃");
+        public static readonly Role Maybe = new Role("Maybe", "❔");
 
         [NotMapped]
         public static readonly IReadOnlyList<Role> AllRoles = new List<Role>()
         {
-            new Role("Tank", "🛡️"),
-            new Role("Healer", "🚑"),
-            new Role("DD", "⚔️"),
-            new Role("Runner", "🏃"),
-            new Role("Maybe", "❔")
+            Tank, Healer, DD, Runner, Maybe
         };
 
+        public Emoji GetEmoji()
+        {
+            return new Emoji(EmojiString);
+        }
     }
 }
