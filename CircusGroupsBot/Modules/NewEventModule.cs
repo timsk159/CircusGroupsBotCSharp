@@ -26,15 +26,17 @@ namespace CircusGroupsBot.Modules
         public Task RunModuleAsync(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}"));
-            var newEvent = new Event(Context.User, eventName, dateandtime, description, tanks, healers, dds);
-
-            DbContext.Events.Add(newEvent);
-            DbContext.SaveChanges();
+            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds);
 
             var allRoleReactions = Role.AllRoles.Select(e => e.GetEmoji());
 
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
             messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactions.ToArray()));
+
+            newEvent.EventMessageId = messageTask.Result.Id;
+
+            DbContext.Events.Add(newEvent);
+            DbContext.SaveChanges();
 
             return messageTask;
         }

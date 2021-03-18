@@ -34,6 +34,7 @@ namespace CircusGroupsBot
                 await client.StartAsync();
 
                 await services.GetRequiredService<CommandHandler>().InitAsync();
+                services.GetRequiredService<ReactionHandler>().Init();
 
                 await Task.Delay(Timeout.Infinite);
             }
@@ -47,7 +48,7 @@ namespace CircusGroupsBot
                 .AddDbContextPool<CircusDbContext>(
                 dbContextOptions => dbContextOptions
                     .UseMySql(
-                        $"server=localhost;user=root;password={dbPass};database=circusdb",
+                        $"server=localhost;user=root;password={dbPass};database=circusdb;charset=utf8mb4",
                         mySqlOptions => mySqlOptions
                             .ServerVersion(new Version(10, 3, 27), ServerType.MariaDb)
                             .CharSetBehavior(CharSetBehavior.NeverAppend))
@@ -61,6 +62,7 @@ namespace CircusGroupsBot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<Logger>()
+                .AddSingleton<ReactionHandler>()
                 .BuildServiceProvider();
         }
     }

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CircusGroupsBot.Migrations
 {
     [DbContext(typeof(CircusDbContext))]
-    [Migration("20210317233345_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20210318224859_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,15 +26,15 @@ namespace CircusGroupsBot.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("DateAndTime")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<ulong>("EventMessageId")
+                        .HasColumnType("bigint unsigned");
+
                     b.Property<string>("EventName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<ulong>("LeaderUserID")
@@ -51,15 +51,39 @@ namespace CircusGroupsBot.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("EmojiString")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            Name = "Tank"
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            Name = "Healer"
+                        },
+                        new
+                        {
+                            RoleId = 3,
+                            Name = "DD"
+                        },
+                        new
+                        {
+                            RoleId = 4,
+                            Name = "Runner"
+                        },
+                        new
+                        {
+                            RoleId = 5,
+                            Name = "Maybe"
+                        });
                 });
 
             modelBuilder.Entity("CircusGroupsBot.Events.Event", b =>

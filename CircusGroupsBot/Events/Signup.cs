@@ -10,7 +10,7 @@ namespace CircusGroupsBot.Events
     [Owned]
     public class Signup
     {
-        public virtual Role Role { get; set; }
+        public Role Role { get; set; }
         public bool IsRequired { get; set; }
 
         public Signup() { }

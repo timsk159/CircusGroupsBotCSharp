@@ -14,7 +14,7 @@ namespace CircusGroupsBot.Services
             var dbPass = Environment.GetEnvironmentVariable(Config.DB_PASSWORD_ENV_VAR);
 
             var optionsBuilder = new DbContextOptionsBuilder<CircusDbContext>();
-            optionsBuilder.UseMySql($"server=localhost;user=root;password={dbPass};database=circusdb",
+            optionsBuilder.UseMySql($"server=localhost;user=root;password={dbPass};database=circusdb;charset=utf8mb4",
                         mySqlOptions => mySqlOptions
                             .ServerVersion(new Version(10, 3, 27), ServerType.MariaDb)
                             .CharSetBehavior(CharSetBehavior.NeverAppend));

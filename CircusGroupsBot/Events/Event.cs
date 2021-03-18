@@ -11,31 +11,28 @@ namespace CircusGroupsBot.Events
     {
         [Key]
         public int EventId { get; set; }
-        [Required]
         public ulong LeaderUserID { get; set; }
-        [Required]
         public string EventName { get; set; }
-        [Required]
         public string DateAndTime { get; set; }
-        [Required]
         public string Description { get; set; }
-        [Required]
+        public ulong EventMessageId { get; set; }
         public List<Signup> Signups { get; set; }
 
 
-        private Event(ulong leaderUserID, string eventName, string dateAndTime, string description = "")
+        private Event(ulong leaderUserID, string eventName, string dateAndTime, ulong eventMessageId, string description = "")
         {
             this.LeaderUserID = leaderUserID;
             this.EventName = eventName;
             this.DateAndTime = dateAndTime;
             this.Description = description;
+            this.EventMessageId = eventMessageId;
         }
 
-        public Event(IUser leader, string eventName, string dateAndTime, string description = "",
-    int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leader.Id, eventName, dateAndTime, description, tanks, healers, dds, runners) { }
+        public Event(IUser leader, string eventName, string dateAndTime, ulong eventMessageId, string description = "",
+    int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leader.Id, eventName, dateAndTime, eventMessageId, description, tanks, healers, dds, runners) { }
 
-        public Event(ulong leaderUserID, string eventName, string dateAndTime, string description = "",
-    int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leaderUserID, eventName, dateAndTime, description)
+        public Event(ulong leaderUserID, string eventName, string dateAndTime, ulong eventMessageId, string description = "",
+    int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leaderUserID, eventName, dateAndTime, eventMessageId, description)
         {
             for(int i = 0; i < tanks; ++i)
             {
@@ -55,7 +52,7 @@ namespace CircusGroupsBot.Events
             }
         }
 
-        public Event(ulong leaderUserID, string eventName, string dateAndTime, List<Signup> signups, string description = "") : this(leaderUserID, eventName, dateAndTime, description)
+        public Event(ulong leaderUserID, string eventName, string dateAndTime, ulong eventMessageId, List<Signup> signups, string description = "") : this(leaderUserID, eventName, dateAndTime, eventMessageId, description)
         {
             this.Signups = signups;
         }
