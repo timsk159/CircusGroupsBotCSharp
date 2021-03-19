@@ -69,7 +69,7 @@ namespace CircusGroupsBot.Services
                     eventForMessage.Signups.Add((new Signup(dbRole, false, reaction.UserId)));
                     eventForMessage.UpdateSignupsOnMessageAsync(channel);
                     DbContext.SaveChanges();
-                    return channel.SendMessageAsync($"<@{reaction.UserId}> Signed up to {eventForMessage.EventName}");
+                    return channel.SendMessageAsync($"<@{reaction.UserId}> Signed up to {eventForMessage.EventName} as {role.GetEmoji()}");
                 }
 
             }
