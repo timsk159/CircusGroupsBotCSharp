@@ -1,12 +1,8 @@
 ﻿using CircusGroupsBot.Events;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CircusGroupsBot.Services
@@ -26,7 +22,6 @@ namespace CircusGroupsBot.Services
         {
             client.ReactionAdded += ReactionAdded;
             client.ReactionRemoved += ReactionRemoved;
-            Console.WriteLine("Init Reactions");
         }
 
 
