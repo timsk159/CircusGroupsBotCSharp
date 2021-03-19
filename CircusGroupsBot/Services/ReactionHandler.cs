@@ -32,6 +32,27 @@ namespace CircusGroupsBot.Services
 
         private Task ReactionRemoved(Cacheable<IUserMessage, ulong> messageCacheable, ISocketMessageChannel channel, SocketReaction reaction)
         {
+            if (reaction.UserId == client.CurrentUser.Id)
+            {
+                return Task.CompletedTask;
+            }
+
+            var messageId = messageCacheable.Id;
+            var eventForMessage = DbContext.Events.Include(e => e.Signups).ThenInclude(e => e.Role).AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
+            if (eventForMessage != null)
+            {
+                var role = Role.GetRoleFromEmoji(reaction.Emote.Name);
+                var signup = eventForMessage.Signups.FirstOrDefault(e => e.Role.RoleId == role.RoleId && e.UserId == reaction.UserId);
+                if (signup != null)
+                {
+                    eventForMessage.Signups.Remove(signup);
+                    eventForMessage.UpdateSignupsOnMessageAsync(channel);
+                    DbContext.SaveChanges();
+                    return channel.SendMessageAsync($"<@{reaction.UserId}> is no longer joining {eventForMessage.EventName}");
+                }
+
+            }
+
             return Task.CompletedTask;
         }
 
