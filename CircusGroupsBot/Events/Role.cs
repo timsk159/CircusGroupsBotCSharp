@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,7 @@ namespace CircusGroupsBot.Events
 
         private Role(int roleId, string name)
         {
+            this.RoleId = roleId;
             this.Name = name;
         }
 

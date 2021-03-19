@@ -10,6 +10,7 @@ namespace CircusGroupsBot.Events
     [Owned]
     public class Signup
     {
+        public string SignupId { get; set; }
         public Role Role { get; set; }
         public bool IsRequired { get; set; }
 

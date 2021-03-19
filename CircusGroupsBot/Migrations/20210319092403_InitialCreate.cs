@@ -41,15 +41,14 @@ namespace CircusGroupsBot.Migrations
                 name: "Signup",
                 columns: table => new
                 {
-                    EventId = table.Column<int>(nullable: false),
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    SignupId = table.Column<string>(nullable: false),
                     RoleId = table.Column<int>(nullable: true),
-                    IsRequired = table.Column<bool>(nullable: false)
+                    IsRequired = table.Column<bool>(nullable: false),
+                    EventId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Signup", x => new { x.EventId, x.Id });
+                    table.PrimaryKey("PK_Signup", x => x.SignupId);
                     table.ForeignKey(
                         name: "FK_Signup_Events_EventId",
                         column: x => x.EventId,
@@ -69,12 +68,17 @@ namespace CircusGroupsBot.Migrations
                 columns: new[] { "RoleId", "Name" },
                 values: new object[,]
                 {
-                    { -2147482647, "Tank" },
-                    { -2147482646, "Healer" },
-                    { -2147482645, "DD" },
-                    { -2147482644, "Runner" },
-                    { -2147482643, "Maybe" }
+                    { 1, "Tank" },
+                    { 2, "Healer" },
+                    { 3, "DD" },
+                    { 4, "Runner" },
+                    { 5, "Maybe" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Signup_EventId",
+                table: "Signup",
+                column: "EventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Signup_RoleId",

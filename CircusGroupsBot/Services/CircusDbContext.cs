@@ -24,6 +24,14 @@ namespace CircusGroupsBot.Services
                 Console.WriteLine($"Role! {role.Name}");
             }
             modelBuilder.Entity<Role>().HasData(Role.AllRoles);
+
+            modelBuilder.Entity<Event>().OwnsMany(e => e.Signups, a =>
+            {
+                a.WithOwner().HasForeignKey("EventId");
+                a.Property<string>("SignupId").ValueGeneratedOnAdd();
+                a.HasKey("SignupId");
+            });
+
             base.OnModelCreating(modelBuilder);
         }
     }

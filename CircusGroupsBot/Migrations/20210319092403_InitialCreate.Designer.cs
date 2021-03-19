@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CircusGroupsBot.Migrations
 {
     [DbContext(typeof(CircusDbContext))]
-    [Migration("20210318224859_InitialCreate")]
+    [Migration("20210319092403_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,11 +90,11 @@ namespace CircusGroupsBot.Migrations
                 {
                     b.OwnsMany("CircusGroupsBot.Events.Signup", "Signups", b1 =>
                         {
-                            b1.Property<int>("EventId")
-                                .HasColumnType("int");
-
-                            b1.Property<int>("Id")
+                            b1.Property<string>("SignupId")
                                 .ValueGeneratedOnAdd()
+                                .HasColumnType("varchar(255)");
+
+                            b1.Property<int>("EventId")
                                 .HasColumnType("int");
 
                             b1.Property<bool>("IsRequired")
@@ -103,7 +103,9 @@ namespace CircusGroupsBot.Migrations
                             b1.Property<int?>("RoleId")
                                 .HasColumnType("int");
 
-                            b1.HasKey("EventId", "Id");
+                            b1.HasKey("SignupId");
+
+                            b1.HasIndex("EventId");
 
                             b1.HasIndex("RoleId");
 
