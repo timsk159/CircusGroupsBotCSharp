@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Discord;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,13 +14,17 @@ namespace CircusGroupsBot.Events
         public string SignupId { get; set; }
         public Role Role { get; set; }
         public bool IsRequired { get; set; }
+        public ulong UserId { get; set; }
 
-        public Signup() { }
+        private Signup() { }
 
-        public Signup(Role role, bool isRequired)
+        public Signup(Role role, bool isRequired, ulong userId = 0)
         {
             this.Role = role;
             this.IsRequired = isRequired;
+            this.UserId = userId;
         }
+
+        public Signup(Role role, IUser user, bool isRequired) : this(role, isRequired, user.Id) { }
     }
 }

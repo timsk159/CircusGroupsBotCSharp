@@ -41,14 +41,21 @@ namespace CircusGroupsBot.Services
             {
                 return Task.CompletedTask;
             }
-
+            
             var messageId = messageCacheable.Id;
-            var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
+            var eventForMessage = DbContext.Events.Include(e =>  e.Signups).ThenInclude(e => e.Role).AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
-                eventForMessage.Signups.Add((new Signup(Role.Tank, false)));
-                DbContext.SaveChanges();
-                return channel.SendMessageAsync("Signed up!");
+                var role = Role.GetRoleFromEmoji(reaction.Emote.Name);
+                var dbRole = DbContext.Roles.AsQueryable().Where(e => e.RoleId == role.RoleId).FirstOrDefault();
+                if (dbRole != null)
+                {
+                    eventForMessage.Signups.Add((new Signup(dbRole, false, reaction.UserId)));
+                    eventForMessage.UpdateSignupsOnMessageAsync(channel);
+                    DbContext.SaveChanges();
+                    return channel.SendMessageAsync($"<@{reaction.UserId}> Signed up to {eventForMessage.EventName}");
+                }
+
             }
 
             return Task.CompletedTask;
