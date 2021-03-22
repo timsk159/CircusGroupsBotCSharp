@@ -72,7 +72,10 @@ namespace CircusGroupsBot.Services
                 }
                 else
                 {
-                    return channel.SendMessageAsync($"Sorry <@{reaction.UserId}> we don't need any more {role.GetEmoji()}'s");
+                    var getMsgTask = messageCacheable.GetOrDownloadAsync();
+                    getMsgTask.ContinueWith(t => getMsgTask.Result.RemoveReactionAsync(reaction.Emote, reaction.UserId));
+                    getMsgTask.ContinueWith(t => channel.SendMessageAsync($"Sorry <@{reaction.UserId}> we don't need any more {role.GetEmoji()}'s"));
+                    return getMsgTask;
                 }
 
             }
