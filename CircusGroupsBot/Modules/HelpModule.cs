@@ -1,7 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +8,9 @@ namespace CircusGroupsBot.Modules
 {
     public class HelpModule : ModuleBase<SocketCommandContext>
     {
-        private IServiceProvider services;
+        private CommandService services;
 
-        public HelpModule(IServiceProvider services)
+        public HelpModule(CommandService services)
         {
             this.services = services;
         }
@@ -27,9 +25,8 @@ namespace CircusGroupsBot.Modules
                 return null;
             }
 
-            var commandService = services.GetRequiredService<CommandService>();
             var commands = new Dictionary<string, string>();
-            foreach(var module in commandService.Modules)
+            foreach(var module in services.Modules)
             {
                 commands.Add(module.Commands[0].Aliases[0], module.Commands[0].Summary);
             }
