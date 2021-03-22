@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Discord;
 using Discord.WebSocket;
 
@@ -63,21 +64,25 @@ namespace CircusGroupsBot.Events
 Scheduled For: {DateAndTime}
 
 Leader: <@{LeaderUserID}>
+
 {Description}
+
 ";
         }
 
         async public void UpdateSignupsOnMessageAsync(ISocketMessageChannel channel)
         {
             var messageRaw = await channel.GetMessageAsync(EventMessageId);
-            Console.WriteLine(messageRaw.GetType().ToString());
+
             var message = messageRaw as IUserMessage;
 
             if (message != null)
             {
                 var messageStr = GetAnnouncementString();
 
-                foreach (var signup in Signups)
+                var sortedSignups = Signups.OrderBy(e => e.Role.RoleId);
+
+                foreach (var signup in sortedSignups)
                 {
                     messageStr += $"{signup.Role.GetEmoji().Name}: <@{signup.UserId}>\n";
                 }
