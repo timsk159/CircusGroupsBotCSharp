@@ -9,6 +9,7 @@ namespace CircusGroupsBot.Events
         public string SignupId { get; set; }
         public Role Role { get; set; }
         public bool IsRequired { get; set; }
+        //A userID of 0 means no one has signed up.
         public ulong UserId { get; set; }
 
         private Signup() { }
@@ -21,5 +22,10 @@ namespace CircusGroupsBot.Events
         }
 
         public Signup(Role role, IUser user, bool isRequired) : this(role, isRequired, user.Id) { }
+
+        public bool SignupFilled()
+        {
+            return UserId != 0;
+        }
     }
 }

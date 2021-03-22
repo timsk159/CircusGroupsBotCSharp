@@ -28,15 +28,19 @@ namespace CircusGroupsBot.Modules
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}"));
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds);
 
-            var allRoleReactions = Role.AllRoles.Select(e => e.GetEmoji());
+            var allRoleReactions = Enum.GetValues(typeof(Role)).OfType<Role>().Select(e => e.GetEmoji());
 
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
+            messageTask.ContinueWith(continuation => newEvent.UpdateSignupsOnMessageAsync(Context.Channel));
             messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactions.ToArray()));
+
 
             newEvent.EventMessageId = messageTask.Result.Id;
 
             DbContext.Events.Add(newEvent);
             DbContext.SaveChanges();
+
+            
 
             return messageTask;
         }

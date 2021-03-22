@@ -33,14 +33,14 @@ namespace CircusGroupsBot.Services
             }
 
             var messageId = messageCacheable.Id;
-            var eventForMessage = DbContext.Events.Include(e => e.Signups).ThenInclude(e => e.Role).AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
+            var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
-                var role = Role.GetRoleFromEmoji(reaction.Emote.Name);
-                var signup = eventForMessage.Signups.FirstOrDefault(e => e.Role.RoleId == role.RoleId && e.UserId == reaction.UserId);
+                var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
+                var signup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
                 if (signup != null)
                 {
-                    eventForMessage.Signups.Remove(signup);
+                    eventForMessage.RemoveSignup(signup);
                     eventForMessage.UpdateSignupsOnMessageAsync(channel);
                     DbContext.SaveChanges();
                     return channel.SendMessageAsync($"<@{reaction.UserId}> is no longer joining {eventForMessage.EventName}");
@@ -59,17 +59,20 @@ namespace CircusGroupsBot.Services
             }
             
             var messageId = messageCacheable.Id;
-            var eventForMessage = DbContext.Events.Include(e =>  e.Signups).ThenInclude(e => e.Role).AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
+            var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
-                var role = Role.GetRoleFromEmoji(reaction.Emote.Name);
-                var dbRole = DbContext.Roles.AsQueryable().Where(e => e.RoleId == role.RoleId).FirstOrDefault();
-                if (dbRole != null)
+                var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
+                var didAddSignup = eventForMessage.TryAddSignup(role, reaction.UserId);
+                if (didAddSignup)
                 {
-                    eventForMessage.Signups.Add((new Signup(dbRole, false, reaction.UserId)));
                     eventForMessage.UpdateSignupsOnMessageAsync(channel);
                     DbContext.SaveChanges();
                     return channel.SendMessageAsync($"<@{reaction.UserId}> Signed up to {eventForMessage.EventName} as {role.GetEmoji()}");
+                }
+                else
+                {
+                    return channel.SendMessageAsync($"Sorry <@{reaction.UserId}> we don't need any more {role.GetEmoji()}'s");
                 }
 
             }

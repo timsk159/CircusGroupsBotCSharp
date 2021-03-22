@@ -34,6 +34,8 @@ namespace CircusGroupsBot.Events
         public Event(ulong leaderUserID, string eventName, string dateAndTime, ulong eventMessageId, string description = "",
     int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leaderUserID, eventName, dateAndTime, eventMessageId, description)
         {
+            Signups = new List<Signup>();
+
             for(int i = 0; i < tanks; ++i)
             {
                 Signups.Add(new Signup(Role.Tank, true));
@@ -70,21 +72,64 @@ Leader: <@{LeaderUserID}>
 ";
         }
 
+        public bool TryAddSignup(Role role, ulong userID)
+        {
+            if(role != Role.Maybe && Signups.Any(e => e.IsRequired == true))
+            {
+                var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.SignupFilled());
+                if(freeSlot != null)
+                {
+                    freeSlot.UserId = userID;
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                Signups.Add(new Signup(role, false, userID));
+                return true;
+            }
+        }
+
+        public void RemoveSignup(Role role, ulong userID)
+        {
+            RemoveSignup(Signups.FirstOrDefault(e => e.Role == role && e.UserId == userID));
+        }
+
+        public void RemoveSignup(Signup signupToRemove)
+        {
+            if(signupToRemove == null)
+            {
+                return;
+            }
+            if(signupToRemove.IsRequired == true)
+            {
+                signupToRemove.UserId = 0;
+            }
+            else
+            {
+                Signups.Remove(signupToRemove);
+            }
+        }
+
         async public void UpdateSignupsOnMessageAsync(ISocketMessageChannel channel)
         {
             var messageRaw = await channel.GetMessageAsync(EventMessageId);
-
             var message = messageRaw as IUserMessage;
 
             if (message != null)
             {
                 var messageStr = GetAnnouncementString();
-
-                var sortedSignups = Signups.OrderBy(e => e.Role.RoleId);
+                var sortedSignups = Signups.OrderBy(e => e.Role);
 
                 foreach (var signup in sortedSignups)
                 {
-                    messageStr += $"{signup.Role.GetEmoji().Name}: <@{signup.UserId}>\n";
+                    messageStr += $"{signup.Role.GetEmoji().Name}: ";
+                    if (signup.SignupFilled())
+                    {
+                        messageStr += $"<@{signup.UserId}>";
+                    }
+                    messageStr += "\n";
                 }
                 await message.ModifyAsync(x => { x.Content = messageStr; });
             }

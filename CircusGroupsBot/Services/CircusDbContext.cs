@@ -9,7 +9,6 @@ namespace CircusGroupsBot.Services
     public class CircusDbContext : DbContext
     {
         public DbSet<Event> Events { get; set; }
-        public DbSet<Role> Roles { get; set; }
 
         public CircusDbContext(DbContextOptions<CircusDbContext> options) : base(options)
         {
@@ -17,14 +16,6 @@ namespace CircusGroupsBot.Services
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //Without this, I get a null reference exception when creating a migration.
-            //Guessing cos the static vars are not initialized at design time?
-            foreach(var role in Role.AllRoles)
-            {
-                Console.WriteLine($"Role! {role.Name}");
-            }
-            modelBuilder.Entity<Role>().HasData(Role.AllRoles);
-
             modelBuilder.Entity<Event>().OwnsMany(e => e.Signups, a =>
             {
                 a.WithOwner().HasForeignKey("EventId");

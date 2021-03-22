@@ -6,52 +6,69 @@ using System.Linq;
 
 namespace CircusGroupsBot.Events
 {
-    public class Role
+    public enum Role
     {
-        [Key]
-        public int RoleId { get; set; }
-        public string Name { get; set; }
+        Tank,
+        Healer,
+        DD,
+        Runner,
+        Maybe
+    };
 
-        private Role(int roleId, string name)
+    public static class RoleExtensions
+    {
+        public static string GetName(this Role role)
         {
-            this.RoleId = roleId;
-            this.Name = name;
+            switch(role)
+            {
+                case Role.Tank:
+                    return "Tank";
+                case Role.Healer:
+                    return "Healer";
+                case Role.DD:
+                    return "DD";
+                case Role.Runner:
+                    return "Runner";
+                case Role.Maybe:
+                    return "Maybe";
+            }
+            return "UnknownRole";
         }
 
-        public static readonly Role Tank = new Role(1, "Tank");
-        public static readonly Role Healer = new Role(2, "Healer");
-        public static readonly Role DD = new Role(3, "DD");
-        public static readonly Role Runner = new Role(4, "Runner");
-        public static readonly Role Maybe = new Role(5, "Maybe");
-
-        [NotMapped]
-        public static readonly IReadOnlyList<Role> AllRoles = new List<Role>()
+        public static Emoji GetEmoji(this Role role)
         {
-            Tank, Healer, DD, Runner, Maybe
-        };
-
-        public Emoji GetEmoji()
-        {
-            //TODO: This is a workaround, because I can't figure out how to store an emoji in the DB
-            switch(RoleId)
+            switch (role)
             {
-                case 1:
+                case Role.Tank:
                     return new Emoji("🛡️");
-                case 2:
+                case Role.Healer:
                     return new Emoji("🚑");
-                case 3:
+                case Role.DD:
                     return new Emoji("⚔️");
-                case 4:
+                case Role.Runner:
                     return new Emoji("🏃");
-                case 5:
+                case Role.Maybe:
                     return new Emoji("❔");
             }
             return null;
         }
 
-        public static Role GetRoleFromEmoji(string emoji)
+        public static Role EmojiToRole(string emoji)
         {
-            return AllRoles.FirstOrDefault(e => e.GetEmoji().Name == emoji);
+            switch(emoji)
+            {
+                case "🛡️":
+                    return Role.Tank;
+                case "🚑":
+                    return Role.Healer;
+                case "⚔️":
+                    return Role.DD;
+                case "🏃":
+                    return Role.Runner;
+                case "❔":
+                    return Role.Maybe;
+            }
+            return Role.Tank;
         }
     }
 }
