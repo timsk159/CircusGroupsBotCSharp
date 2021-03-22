@@ -36,16 +36,14 @@ namespace CircusGroupsBot.Modules
             }
 
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
-            messageTask.ContinueWith(continuation => newEvent.UpdateSignupsOnMessageAsync(Context.Channel));
-            messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactionsEmoji.ToArray()));
+            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(Context.Channel));
+            messageTask.ContinueWith(cont => cont.Result.AddReactionsAsync(allRoleReactionsEmoji.ToArray()));
 
-
+            Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
             newEvent.EventMessageId = messageTask.Result.Id;
 
             DbContext.Events.Add(newEvent);
             DbContext.SaveChanges();
-
-            
 
             return messageTask;
         }
