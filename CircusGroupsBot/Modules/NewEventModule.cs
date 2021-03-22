@@ -23,16 +23,21 @@ namespace CircusGroupsBot.Modules
 
         [Command("newevent")]
         [Summary("Create a new event!")]
-        public Task RunModuleAsync(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0)
+        public Task RunModuleAsync(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
         {
-            Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}"));
-            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds);
+            Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
+            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
-            var allRoleReactions = Enum.GetValues(typeof(Role)).OfType<Role>().Select(e => e.GetEmoji());
+            var allRoleReactionsEmoji = Enum.GetValues(typeof(Role)).OfType<Role>().Select(e => e.GetEmoji()).ToList();
+
+            if(newEvent.Signups.SingleOrDefault(e => e.Role == Role.Runner && e.IsRequired) == null)
+            {
+                allRoleReactionsEmoji.RemoveAll(e => e.Name == Role.Runner.GetEmoji().Name);
+            }
 
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
             messageTask.ContinueWith(continuation => newEvent.UpdateSignupsOnMessageAsync(Context.Channel));
-            messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactions.ToArray()));
+            messageTask.ContinueWith(continuationAction => continuationAction.Result.AddReactionsAsync(allRoleReactionsEmoji.ToArray()));
 
 
             newEvent.EventMessageId = messageTask.Result.Id;

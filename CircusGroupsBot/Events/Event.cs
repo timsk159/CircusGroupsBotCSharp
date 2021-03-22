@@ -72,6 +72,26 @@ Leader: <@{LeaderUserID}>
 ";
         }
 
+        public string GetReactionInstructionsString()
+        {
+            var returnStr = "\nReact With:\n";
+            foreach(Role val in Enum.GetValues(typeof(Role)))
+            {
+                if (val == Role.Runner)
+                {
+                    if (Signups.Any(e => e.Role == Role.Runner && e.IsRequired))
+                    {
+                        returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
+                    }
+                }
+                else
+                {
+                    returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
+                }
+            }
+            return returnStr;
+        }
+
         public bool TryAddSignup(Role role, ulong userID)
         {
             if(role != Role.Maybe && Signups.Any(e => e.IsRequired == true))
@@ -131,6 +151,9 @@ Leader: <@{LeaderUserID}>
                     }
                     messageStr += "\n";
                 }
+
+                messageStr += GetReactionInstructionsString();
+
                 await message.ModifyAsync(x => { x.Content = messageStr; });
             }
         }
