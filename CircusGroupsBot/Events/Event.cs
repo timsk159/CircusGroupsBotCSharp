@@ -132,6 +132,12 @@ Leader: <@{LeaderUserID}>
             }
         }
 
+        public bool IsFull()
+        {
+            var requiredSignups = Signups.Where(e => e.IsRequired);
+            return requiredSignups.All(e => e.SignupFilled());
+        }
+
         async public void UpdateSignupsOnMessageAsync(ISocketMessageChannel channel)
         {
             var messageRaw = await channel.GetMessageAsync(EventMessageId);
