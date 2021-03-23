@@ -9,6 +9,7 @@ namespace CircusGroupsBot.Services
     public class CircusDbContext : DbContext
     {
         public DbSet<Event> Events { get; set; }
+        public DbSet<Template> Templates { get; set; }
 
         public CircusDbContext(DbContextOptions<CircusDbContext> options) : base(options)
         {
