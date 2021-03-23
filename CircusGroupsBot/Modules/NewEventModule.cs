@@ -23,14 +23,36 @@ namespace CircusGroupsBot.Modules
 
         [Command("newevent")]
         [Summary("Create a new event!")]
-        public Task RunModuleAsync(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
+        public Task RunNewEvent(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
+            return CreateEvent(newEvent);
+        }
+
+        [Command("neweventbytemplate")]
+        [Summary("Create a new event based on a pre-created template")]
+        public Task RunNewEventByTemplate(string templateName, string eventName, string dateandtime, string description = "")
+        {
+            Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEventByTemplate", $"Creating new event from template {templateName} {eventName}, {dateandtime}, {description}"));
+
+            var template = DbContext.Templates.FirstOrDefault(e => e.TemplateName == templateName);
+            if(template == null)
+            {
+                return ReplyAsync($"Template with name {templateName} was not found");
+            }
+
+            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, template.Tanks, template.Healers, template.DDs, template.Runners);
+
+            return CreateEvent(newEvent);
+        }
+
+        private Task CreateEvent(Event newEvent)
+        {
             var allRoleReactionsEmoji = Enum.GetValues(typeof(Role)).OfType<Role>().Select(e => e.GetEmoji()).ToList();
 
-            if(newEvent.Signups.SingleOrDefault(e => e.Role == Role.Runner && e.IsRequired) == null)
+            if (newEvent.Signups.SingleOrDefault(e => e.Role == Role.Runner && e.IsRequired) == null)
             {
                 allRoleReactionsEmoji.RemoveAll(e => e.Name == Role.Runner.GetEmoji().Name);
             }
