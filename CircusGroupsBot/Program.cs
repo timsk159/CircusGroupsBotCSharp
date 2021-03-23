@@ -44,6 +44,11 @@ namespace CircusGroupsBot
         {
             var dbPass = Environment.GetEnvironmentVariable(Config.DB_PASSWORD_ENV_VAR);
 
+            var discordSocketConfig = new DiscordSocketConfig();
+            discordSocketConfig.AlwaysDownloadUsers = true;
+
+            var discordClient = new DiscordSocketClient(discordSocketConfig);
+
             return new ServiceCollection()
                 .AddDbContextPool<CircusDbContext>(
                 dbContextOptions => dbContextOptions
@@ -58,7 +63,7 @@ namespace CircusGroupsBot
                                 .AddFilter(level => level >= LogLevel.Information)))
                     .EnableSensitiveDataLogging()
                     .EnableDetailedErrors())
-                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<DiscordSocketClient>(discordClient)
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<Logger>()
