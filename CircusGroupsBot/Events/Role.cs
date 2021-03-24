@@ -52,7 +52,7 @@ namespace CircusGroupsBot.Events
                 case Role.Runner:
                     return new Emoji("🏃");
                 case Role.Reserve:
-                    return new Emoji("⏱️");
+                    return new Emoji("⏲️");
                 case Role.Maybe:
                     return new Emoji("❔");
             }
