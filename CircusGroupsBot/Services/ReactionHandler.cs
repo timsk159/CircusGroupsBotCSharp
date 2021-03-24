@@ -38,21 +38,24 @@ namespace CircusGroupsBot.Services
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
+                //Must do this, as the message in the Cacheable is not available 90% of time.
                 var message = await messageCacheable.GetOrDownloadAsync();
+
                 var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
-                var signup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
-                if (signup != null)
+                var existingSignup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
+                if (existingSignup != null)
                 {
-                    bool wasFull = eventForMessage.IsFull();
-                    eventForMessage.RemoveSignup(signup);
-                    eventForMessage.UpdateSignupsOnMessageAsync(message);
+                    eventForMessage.RemoveSignup(existingSignup);
                     DbContext.SaveChanges();
 
-                    var user = await channel.GetUserAsync(reaction.UserId);
+                    eventForMessage.UpdateSignupsOnMessageAsync(message);
 
+                    bool wasFull = eventForMessage.IsFull();
+                    var user = await channel.GetUserAsync(reaction.UserId);
                     if (user != null)
                     {
                         var returnTask = user.SendMessageAsync($"You are no longer joining {eventForMessage.EventName}");
+
                         if(wasFull)
                         {
                             var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);
@@ -73,9 +76,11 @@ namespace CircusGroupsBot.Services
                 return;
             }
 
-            var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
+            //Must do this, as the message in the Cacheable is not available 90% of time.
             var message = await messageCacheable.GetOrDownloadAsync();
 
+            //Remove people adding emojies we don't recognise
+            var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
             if (role == Role.None)
             {
                 var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
@@ -89,12 +94,12 @@ namespace CircusGroupsBot.Services
                 var didAddSignup = eventForMessage.TryAddSignup(role, reaction.UserId);
 
                 var user = await channel.GetUserAsync(reaction.UserId);
-
-
                 if (didAddSignup)
                 {
-                    eventForMessage.UpdateSignupsOnMessageAsync(message);
                     DbContext.SaveChanges();
+
+                    eventForMessage.UpdateSignupsOnMessageAsync(message);
+
                     var msgTask = user.SendMessageAsync($"You successfully signed up to {eventForMessage.EventName} as {role.GetEmoji()}. Have fun!");
 
                     if (eventForMessage.IsFull())
