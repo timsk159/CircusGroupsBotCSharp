@@ -140,7 +140,7 @@ Leader: <@{LeaderUserID}>
         public bool IsFull()
         {
             var requiredSignups = Signups.Where(e => e.IsRequired);
-            return requiredSignups.All(e => e.SignupFilled());
+            return requiredSignups.Any() && requiredSignups.All(e => e.SignupFilled());
         }
 
         async public void UpdateSignupsOnMessageAsync(IUserMessage message)
