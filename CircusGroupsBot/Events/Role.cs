@@ -13,6 +13,7 @@ namespace CircusGroupsBot.Events
         Healer,
         DD,
         Runner,
+        Reserve,
         Maybe
     };
 
@@ -30,6 +31,8 @@ namespace CircusGroupsBot.Events
                     return "DD";
                 case Role.Runner:
                     return "Runner";
+                case Role.Reserve:
+                    return "Reserve";
                 case Role.Maybe:
                     return "Maybe";
             }
@@ -48,6 +51,8 @@ namespace CircusGroupsBot.Events
                     return new Emoji("⚔️");
                 case Role.Runner:
                     return new Emoji("🏃");
+                case Role.Reserve:
+                    return new Emoji("⏱️");
                 case Role.Maybe:
                     return new Emoji("❔");
             }
@@ -66,6 +71,8 @@ namespace CircusGroupsBot.Events
                     return Role.DD;
                 case "🏃":
                     return Role.Runner;
+                case "⏱️":
+                    return Role.Reserve;
                 case "❔":
                     return Role.Maybe;
             }

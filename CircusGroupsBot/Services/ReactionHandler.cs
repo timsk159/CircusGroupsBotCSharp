@@ -45,18 +45,18 @@ namespace CircusGroupsBot.Services
                 var existingSignup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
                 if (existingSignup != null)
                 {
+                    bool wasFull = eventForMessage.IsFull();
                     eventForMessage.RemoveSignup(existingSignup);
                     DbContext.SaveChanges();
 
                     eventForMessage.UpdateSignupsOnMessageAsync(message);
 
-                    bool wasFull = eventForMessage.IsFull();
                     var user = await channel.GetUserAsync(reaction.UserId);
                     if (user != null)
                     {
                         var returnTask = user.SendMessageAsync($"You are no longer joining {eventForMessage.EventName}");
 
-                        if(wasFull)
+                        if(wasFull && !eventForMessage.IsFull())
                         {
                             var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);
                             await returnTask.ContinueWith(t => leaderUser.SendMessageAsync($"Your event {eventForMessage.EventName} is no longer full, as {user.Username} is no longer joining"));
@@ -91,6 +91,7 @@ namespace CircusGroupsBot.Services
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
+                bool wasFull = eventForMessage.IsFull();
                 var didAddSignup = eventForMessage.TryAddSignup(role, reaction.UserId);
 
                 var user = await channel.GetUserAsync(reaction.UserId);
@@ -102,7 +103,7 @@ namespace CircusGroupsBot.Services
 
                     var msgTask = user.SendMessageAsync($"You successfully signed up to {eventForMessage.EventName} as {role.GetEmoji()}. Have fun!");
 
-                    if (eventForMessage.IsFull())
+                    if (eventForMessage.IsFull() && !wasFull)
                     {
                         var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);
                         await msgTask.ContinueWith(t => leaderUser.SendMessageAsync($"Your event {eventForMessage.EventName} is now full!"));

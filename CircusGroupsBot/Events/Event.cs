@@ -79,27 +79,83 @@ Leader: <@{LeaderUserID}>
 
             foreach(Role val in Enum.GetValues(typeof(Role)))
             {
-                if (hasRequiredRoles)
+                if (val == Role.None)
                 {
-                    if (Signups.Any(e => e.Role == val))
-                    {
-                        returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
-                    }
+                    continue;
+                }
+
+                bool shouldAddRole = false;
+
+                if (val == Role.Maybe || val == Role.Reserve)
+                {
+                    shouldAddRole = true;
                 }
                 else
                 {
-                    if (val != Role.Runner)
+                    if (hasRequiredRoles)
                     {
-                        returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
+                        if (Signups.Any(e => e.Role == val))
+                        {
+                            shouldAddRole = true;
+                        }
                     }
+                    else
+                    {
+                        if (val != Role.Runner)
+                        {
+                            shouldAddRole = true;
+                        }
+                    }
+                }
+                if(shouldAddRole)
+                {
+                    returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
                 }
             }
             return returnStr;
         }
 
+        public async void AddReactionsToMessageAsync(IUserMessage message)
+        {
+            var allRoleReactionsEmoji = new List<Emoji>();
+            var allRoles = Enum.GetValues(typeof(Role)).OfType<Role>();
+
+            if (Signups.Any(e => e.IsRequired))
+            {
+                foreach (var role in allRoles)
+                {
+                    if (role == Role.None)
+                    {
+                        continue;
+                    }
+                    if (Signups.Any(e => e.Role == role))
+                    {
+                        allRoleReactionsEmoji.Add(role.GetEmoji());
+                    }
+                }
+                allRoleReactionsEmoji.Add(Role.Maybe.GetEmoji());
+                allRoleReactionsEmoji.Add(Role.Reserve.GetEmoji());
+            }
+            else
+            {
+                foreach (var role in allRoles)
+                {
+                    if (role == Role.None)
+                    {
+                        continue;
+                    }
+                    if (role != Role.Runner)
+                    {
+                        allRoleReactionsEmoji.Add(role.GetEmoji());
+                    }
+                }
+            }
+            await message.AddReactionsAsync(allRoleReactionsEmoji.ToArray());
+        }
+
         public bool TryAddSignup(Role role, ulong userID)
         {
-            if(role != Role.Maybe && Signups.Any(e => e.IsRequired == true))
+            if(role != Role.Maybe && role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
             {
                 var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.SignupFilled());
                 if(freeSlot != null)

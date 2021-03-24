@@ -50,34 +50,9 @@ namespace CircusGroupsBot.Modules
 
         private Task CreateEvent(Event newEvent)
         {
-            var allRoleReactionsEmoji = new List<Emoji>();
-            var allRoles = Enum.GetValues(typeof(Role)).OfType<Role>();
-
-            if(newEvent.Signups.Any(e => e.IsRequired))
-            {
-                foreach (var role in allRoles)
-                {
-                    if (newEvent.Signups.Any(e => e.Role == role))
-                    {
-                        allRoleReactionsEmoji.Add(role.GetEmoji());
-                    }
-                }
-                allRoleReactionsEmoji.Add(Role.Maybe.GetEmoji());
-            }
-            else
-            {
-                foreach (var role in allRoles)
-                {
-                    if (role != Role.Runner)
-                    {
-                        allRoleReactionsEmoji.Add(role.GetEmoji());
-                    }
-                }
-            }
-
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
             messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
-            messageTask.ContinueWith(cont => cont.Result.AddReactionsAsync(allRoleReactionsEmoji.ToArray()));
+            messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(cont.Result));
 
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
             newEvent.EventMessageId = messageTask.Result.Id;
