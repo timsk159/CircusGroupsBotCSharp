@@ -71,7 +71,7 @@ namespace CircusGroupsBot.Events
                     return Role.DD;
                 case "🏃":
                     return Role.Runner;
-                case "⏱️":
+                case "⏲️":
                     return Role.Reserve;
                 case "❔":
                     return Role.Maybe;

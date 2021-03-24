@@ -58,8 +58,17 @@ namespace CircusGroupsBot.Services
 
                         if(wasFull && !eventForMessage.IsFull())
                         {
+                            var nextReserve = eventForMessage.Signups.FirstOrDefault(e => e.Role == Role.Reserve);
+                            var leaderMsg = $"Your event {eventForMessage.EventName} is no longer full, as {user.Mention} is no longer joining";
+                            if (nextReserve != null)
+                            {
+                                var reserveUser = await channel.GetUserAsync(nextReserve.UserId);
+                                await returnTask.ContinueWith(t => reserveUser.SendMessageAsync($"A spot has opened up in {eventForMessage.EventName} and you are next on the reserves!"));
+                                leaderMsg += $"\nAs <@{nextReserve.UserId}> is the first reserve, they have been notified";
+                            }
+
                             var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);
-                            await returnTask.ContinueWith(t => leaderUser.SendMessageAsync($"Your event {eventForMessage.EventName} is no longer full, as {user.Username} is no longer joining"));
+                            await returnTask.ContinueWith(t => leaderUser.SendMessageAsync(leaderMsg));
                         }
                         await returnTask;
                     }
