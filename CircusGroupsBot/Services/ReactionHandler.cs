@@ -44,7 +44,7 @@ namespace CircusGroupsBot.Services
                 {
                     bool wasFull = eventForMessage.IsFull();
                     eventForMessage.RemoveSignup(signup);
-                    eventForMessage.UpdateSignupsOnMessageAsync(channel);
+                    eventForMessage.UpdateSignupsOnMessageAsync(messageCacheable.Value);
                     DbContext.SaveChanges();
 
                     var user = await channel.GetUserAsync(reaction.UserId);
@@ -83,7 +83,7 @@ namespace CircusGroupsBot.Services
 
                 if (didAddSignup)
                 {
-                    eventForMessage.UpdateSignupsOnMessageAsync(channel);
+                    eventForMessage.UpdateSignupsOnMessageAsync(messageCacheable.Value);
                     DbContext.SaveChanges();
                     var msgTask = user.SendMessageAsync($"You successfully signed up to {eventForMessage.EventName} as {role.GetEmoji()}. Have fun!");
 

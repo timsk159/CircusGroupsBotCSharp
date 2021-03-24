@@ -75,18 +75,23 @@ Leader: <@{LeaderUserID}>
         public string GetReactionInstructionsString()
         {
             var returnStr = "\nReact With:\n";
+            var hasRequiredRoles = Signups.Any(e => e.IsRequired);
+
             foreach(Role val in Enum.GetValues(typeof(Role)))
             {
-                if (val == Role.Runner)
+                if (hasRequiredRoles)
                 {
-                    if (Signups.Any(e => e.Role == Role.Runner && e.IsRequired))
+                    if (Signups.Any(e => e.Role == val))
                     {
                         returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
                     }
                 }
                 else
                 {
-                    returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
+                    if (val != Role.Runner)
+                    {
+                        returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
+                    }
                 }
             }
             return returnStr;
@@ -138,11 +143,8 @@ Leader: <@{LeaderUserID}>
             return requiredSignups.All(e => e.SignupFilled());
         }
 
-        async public void UpdateSignupsOnMessageAsync(ISocketMessageChannel channel)
+        async public void UpdateSignupsOnMessageAsync(IUserMessage message)
         {
-            var messageRaw = await channel.GetMessageAsync(EventMessageId);
-            var message = messageRaw as IUserMessage;
-
             if (message != null)
             {
                 var messageStr = GetAnnouncementString();

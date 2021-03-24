@@ -50,15 +50,33 @@ namespace CircusGroupsBot.Modules
 
         private Task CreateEvent(Event newEvent)
         {
-            var allRoleReactionsEmoji = Enum.GetValues(typeof(Role)).OfType<Role>().Select(e => e.GetEmoji()).ToList();
+            var allRoleReactionsEmoji = new List<Emoji>();
+            var allRoles = Enum.GetValues(typeof(Role)).OfType<Role>();
 
-            if (newEvent.Signups.SingleOrDefault(e => e.Role == Role.Runner && e.IsRequired) == null)
+            if(newEvent.Signups.Any(e => e.IsRequired))
             {
-                allRoleReactionsEmoji.RemoveAll(e => e.Name == Role.Runner.GetEmoji().Name);
+                foreach (var role in allRoles)
+                {
+                    if (newEvent.Signups.Any(e => e.Role == role))
+                    {
+                        allRoleReactionsEmoji.Add(role.GetEmoji());
+                    }
+                }
+                allRoleReactionsEmoji.Add(Role.Maybe.GetEmoji());
+            }
+            else
+            {
+                foreach (var role in allRoles)
+                {
+                    if (role != Role.Runner)
+                    {
+                        allRoleReactionsEmoji.Add(role.GetEmoji());
+                    }
+                }
             }
 
             var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
-            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(Context.Channel));
+            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
             messageTask.ContinueWith(cont => cont.Result.AddReactionsAsync(allRoleReactionsEmoji.ToArray()));
 
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
