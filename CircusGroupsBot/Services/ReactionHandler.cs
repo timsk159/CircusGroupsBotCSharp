@@ -38,13 +38,14 @@ namespace CircusGroupsBot.Services
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
+                var message = await messageCacheable.GetOrDownloadAsync();
                 var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
                 var signup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
                 if (signup != null)
                 {
                     bool wasFull = eventForMessage.IsFull();
                     eventForMessage.RemoveSignup(signup);
-                    eventForMessage.UpdateSignupsOnMessageAsync(messageCacheable.Value);
+                    eventForMessage.UpdateSignupsOnMessageAsync(message);
                     DbContext.SaveChanges();
 
                     var user = await channel.GetUserAsync(reaction.UserId);
@@ -81,9 +82,11 @@ namespace CircusGroupsBot.Services
 
                 var user = await channel.GetUserAsync(reaction.UserId);
 
+                var message = await messageCacheable.GetOrDownloadAsync();
+
                 if (didAddSignup)
                 {
-                    eventForMessage.UpdateSignupsOnMessageAsync(messageCacheable.Value);
+                    eventForMessage.UpdateSignupsOnMessageAsync(message);
                     DbContext.SaveChanges();
                     var msgTask = user.SendMessageAsync($"You successfully signed up to {eventForMessage.EventName} as {role.GetEmoji()}. Have fun!");
 
@@ -97,10 +100,9 @@ namespace CircusGroupsBot.Services
                 }
                 else
                 {
-                    var getMsgTask = messageCacheable.GetOrDownloadAsync();
-                    await getMsgTask.ContinueWith(t => getMsgTask.Result.RemoveReactionAsync(reaction.Emote, reaction.UserId));
-                    await getMsgTask.ContinueWith(t => user.SendMessageAsync($"Sorry, you were not signed up to {eventForMessage.EventName} because we don't need any more {role.GetEmoji()}'s"));
-                    await getMsgTask;
+                    var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
+                    await msgTask.ContinueWith(t => user.SendMessageAsync($"Sorry, you were not signed up to {eventForMessage.EventName} because we don't need any more {role.GetEmoji()}'s"));
+                    await msgTask;
                 }
             }
 
