@@ -8,6 +8,7 @@ namespace CircusGroupsBot.Events
 {
     public enum Role
     {
+        None,
         Tank,
         Healer,
         DD,
@@ -68,7 +69,7 @@ namespace CircusGroupsBot.Events
                 case "❔":
                     return Role.Maybe;
             }
-            return Role.Tank;
+            return Role.None;
         }
     }
 }

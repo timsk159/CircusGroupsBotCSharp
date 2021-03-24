@@ -73,16 +73,23 @@ namespace CircusGroupsBot.Services
                 return;
             }
 
+            var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
+            var message = await messageCacheable.GetOrDownloadAsync();
+
+            if (role == Role.None)
+            {
+                var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
+                return;
+            }
+
             var messageId = messageCacheable.Id;
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
-                var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
                 var didAddSignup = eventForMessage.TryAddSignup(role, reaction.UserId);
 
                 var user = await channel.GetUserAsync(reaction.UserId);
 
-                var message = await messageCacheable.GetOrDownloadAsync();
 
                 if (didAddSignup)
                 {
