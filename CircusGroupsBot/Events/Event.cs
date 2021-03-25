@@ -61,8 +61,7 @@ namespace CircusGroupsBot.Events
 
         public string GetAnnouncementString()
         {
-            return $@"@everyone
-{EventName}
+            return $@"{EventName}
 Scheduled For: {DateAndTime}
 
 Leader: <@{LeaderUserID}>
@@ -203,7 +202,7 @@ Leader: <@{LeaderUserID}>
         {
             if (message != null)
             {
-                var messageStr = GetAnnouncementString();
+                var messageStr = "";
                 var sortedSignups = Signups.OrderBy(e => e.Role);
 
                 foreach (var signup in sortedSignups)
@@ -216,9 +215,26 @@ Leader: <@{LeaderUserID}>
                     messageStr += "\n";
                 }
 
-                messageStr += GetReactionInstructionsString();
+                if (messageStr != "")
+                {
+                    var embed = message.Embeds.FirstOrDefault();
+                    if (embed != null)
+                    {
+                        var eb = embed.ToEmbedBuilder();
 
-                await message.ModifyAsync(x => { x.Content = messageStr; });
+                        var signupsField = eb.Fields.FirstOrDefault(e => e.Name == "Signups");
+                        if (signupsField != null)
+                        {
+                            signupsField.Value = messageStr;
+                        }
+                        else
+                        {
+                            eb.AddField("Signups", messageStr);
+                        }
+
+                        await message.ModifyAsync(x => { x.Embed = eb.Build(); });
+                    }
+                }                
             }
         }
     }

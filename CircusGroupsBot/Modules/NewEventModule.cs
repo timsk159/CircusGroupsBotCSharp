@@ -28,7 +28,7 @@ namespace CircusGroupsBot.Modules
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
-            return CreateEvent(newEvent);
+            return CreateEvent(newEvent, Context.User);
         }
 
         [Command("neweventbytemplate")]
@@ -45,12 +45,19 @@ namespace CircusGroupsBot.Modules
 
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, template.Tanks, template.Healers, template.DDs, template.Runners);
 
-            return CreateEvent(newEvent);
+            return CreateEvent(newEvent, Context.User);
         }
 
-        private Task CreateEvent(Event newEvent)
+        private Task CreateEvent(Event newEvent, IUser leaderUser)
         {
-            var messageTask = ReplyAsync(newEvent.GetAnnouncementString());
+            var eb = new EmbedBuilder();
+            eb.WithTitle(newEvent.EventName);
+            eb.WithDescription(newEvent.GetAnnouncementString());
+            eb.WithAuthor(leaderUser);
+            eb.WithCurrentTimestamp();
+
+            var messageTask = ReplyAsync(message: "@everyone", embed: eb.Build());
+
             messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
             messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(cont.Result));
 
