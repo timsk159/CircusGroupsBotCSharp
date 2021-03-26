@@ -44,6 +44,11 @@ namespace CircusGroupsBot.Services
 
         private Task Client_MessageUpdated(Cacheable<IMessage, ulong> messageCacheable, SocketMessage message, ISocketMessageChannel channel)
         {
+            var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.CommandMessageId == messageCacheable.Id).FirstOrDefault();
+            if (eventForMessage != null)
+            {
+                return commandHandler.MessageReceivedAsync(message);
+            }
             return Task.CompletedTask;
         }
     }

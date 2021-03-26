@@ -150,6 +150,10 @@ Leader: <@{LeaderUserID}>
                     }
                 }
             }
+            if (message.Reactions.Any())
+            {
+                await message.RemoveAllReactionsAsync();
+            }
             await message.AddReactionsAsync(allRoleReactionsEmoji.ToArray());
         }
 
