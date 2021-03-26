@@ -35,6 +35,7 @@ namespace CircusGroupsBot
 
                 await services.GetRequiredService<CommandHandler>().InitAsync();
                 services.GetRequiredService<ReactionHandler>().Init();
+                services.GetRequiredService<MessageModificationHandler>().Init();
 
                 await Task.Delay(Timeout.Infinite);
             }
@@ -68,6 +69,7 @@ namespace CircusGroupsBot
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<Logger>()
                 .AddSingleton<ReactionHandler>()
+                .AddSingleton<MessageModificationHandler>()
                 .BuildServiceProvider();
         }
     }

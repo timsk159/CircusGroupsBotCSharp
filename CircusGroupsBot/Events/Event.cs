@@ -16,6 +16,7 @@ namespace CircusGroupsBot.Events
         public string DateAndTime { get; set; }
         public string Description { get; set; }
         public ulong EventMessageId { get; set; }
+        public ulong CommandMessageId { get; set; }
         public List<Signup> Signups { get; set; }
 
 

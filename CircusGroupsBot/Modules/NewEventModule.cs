@@ -52,7 +52,7 @@ namespace CircusGroupsBot.Modules
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
-            return CreateEvent(newEvent, Context.User);
+            return CreateEvent(newEvent, Context.User, Context.Message);
         }
 
 
@@ -71,10 +71,10 @@ namespace CircusGroupsBot.Modules
 
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, template.Tanks, template.Healers, template.DDs, template.Runners);
 
-            return CreateEvent(newEvent, Context.User);
+            return CreateEvent(newEvent, Context.User, Context.Message);
         }
 
-        private Task CreateEvent(Event newEvent, IUser leaderUser)
+        private Task CreateEvent(Event newEvent, IUser leaderUser, IUserMessage commandMessage)
         {
             var eb = new EmbedBuilder();
             eb.WithTitle(newEvent.EventName);
@@ -89,6 +89,7 @@ namespace CircusGroupsBot.Modules
 
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
             newEvent.EventMessageId = messageTask.Result.Id;
+            newEvent.CommandMessageId = commandMessage.Id;
 
             DbContext.Events.Add(newEvent);
             DbContext.SaveChanges();
