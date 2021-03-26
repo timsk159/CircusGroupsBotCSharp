@@ -22,7 +22,7 @@ namespace CircusGroupsBot.Modules
 
 
         [Command("newevent")]
-        [Summary("Create a new event!")]
+        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
         public Task RunNewEvent(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));

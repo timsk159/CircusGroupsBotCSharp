@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,9 @@ namespace CircusGroupsBot.Modules
             {
                 return null;
             }
+            var eb = new EmbedBuilder();
+            eb.WithTitle("Help");
+            eb.WithDescription("Following this is a list of commands and descriptions of what they do");
 
             var commands = new Dictionary<string, string>();
             foreach(var module in services.Modules)
@@ -32,13 +36,15 @@ namespace CircusGroupsBot.Modules
             }
 
             var sb = new StringBuilder();
-            sb.Append("Commands\r\n-------\r\n");
+            sb.Append(Environment.NewLine);
             foreach(var command in commands)
             {
-                sb.Append($"{command.Key}: {command.Value}\r\n");
+                sb.Append($"`{command.Key}`: {command.Value}{Environment.NewLine}{Environment.NewLine}");
             }
 
-            return user.SendMessageAsync(sb.ToString());
+            eb.AddField("Commands", sb.ToString());
+
+            return user.SendMessageAsync(embed: eb.Build());
         }
     }
 }
