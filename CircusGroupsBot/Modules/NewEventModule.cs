@@ -7,6 +7,7 @@ using CircusGroupsBot.Events;
 using CircusGroupsBot.Services;
 using Discord;
 using System.Linq;
+using Discord.WebSocket;
 
 namespace CircusGroupsBot.Modules
 {
@@ -20,15 +21,51 @@ namespace CircusGroupsBot.Modules
             this.Logger = logger;
         }
 
+        [Command("newevent")]
+        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Priority(2)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description)
+        {
+            return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
+        }
 
         [Command("newevent")]
         [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
-        public Task RunNewEvent(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
+        [Priority(1)]
+        public Task RunNewEvent(string eventName, string dateandtime)
+        {
+            return RunNewEvent(eventName, dateandtime, "", 0, 0, 0, 0);
+        }
+
+        [Command("newevent")]
+        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Priority(3)]
+        public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners = 0)
+        {
+            return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, runners);
+        }
+
+        [Command("newevent")]
+        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Priority(4)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
+
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
-            return CreateEvent(newEvent, Context.User);
+            //Check for editing a message to modify an event
+            var existingEvent = DbContext.Events.AsQueryable().Where(e => e.CommandMessageId == Context.Message.Id).FirstOrDefault();
+            if (existingEvent != null)
+            {
+                var eventMessage = Context.Channel.GetMessageAsync(existingEvent.EventMessageId);
+                eventMessage.ContinueWith(t => ModifyEvent(existingEvent, newEvent, (IUserMessage)t.Result, Context.User));
+                return eventMessage;
+            }
+            else
+            {
+                return CreateEvent(newEvent, Context.User, Context.Message);
+            }
         }
 
         [Command("neweventbytemplate")]
@@ -43,31 +80,52 @@ namespace CircusGroupsBot.Modules
                 return ReplyAsync($"Template with name {templateName} was not found");
             }
 
-            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, template.Tanks, template.Healers, template.DDs, template.Runners);
-
-            return CreateEvent(newEvent, Context.User);
+            return RunNewEvent(eventName, dateandtime, description, template.Tanks, template.Healers, template.DDs, template.Runners);
         }
 
-        private Task CreateEvent(Event newEvent, IUser leaderUser)
+        private Task CreateEvent(Event newEvent, IUser leaderUser, IMessage commandMessage)
         {
-            var eb = new EmbedBuilder();
-            eb.WithTitle(newEvent.EventName);
-            eb.WithDescription(newEvent.GetAnnouncementString());
-            eb.WithAuthor(leaderUser);
-            eb.WithCurrentTimestamp();
-
-            var messageTask = ReplyAsync(message: "@everyone", embed: eb.Build());
+            var embed = GetEmbedForEvent(newEvent, leaderUser);
+            var messageTask = ReplyAsync(message: "@everyone", embed: embed);
 
             messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
             messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(cont.Result));
 
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
             newEvent.EventMessageId = messageTask.Result.Id;
+            newEvent.CommandMessageId = commandMessage.Id;
 
             DbContext.Events.Add(newEvent);
             DbContext.SaveChanges();
 
             return messageTask;
+        }
+
+        private Task ModifyEvent(Event existingEvent, Event newEvent, IUserMessage eventMessage, IUser leaderUser)
+        {
+            existingEvent.EventName = newEvent.EventName;
+            existingEvent.DateAndTime = newEvent.DateAndTime;
+            existingEvent.Description = newEvent.Description;
+
+            //TODO: Move existing signups
+            existingEvent.Signups = newEvent.Signups;
+
+            DbContext.SaveChanges();
+
+            var messageTask = eventMessage.ModifyAsync(e => e.Embed = GetEmbedForEvent(existingEvent, leaderUser));
+            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(eventMessage));
+            messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(eventMessage));
+            return messageTask;
+        }
+
+        private Embed GetEmbedForEvent(Event evnt, IUser leaderUser)
+        {
+            var eb = new EmbedBuilder();
+            eb.WithTitle(evnt.EventName);
+            eb.WithDescription(evnt.GetAnnouncementString());
+            eb.WithAuthor(leaderUser);
+            eb.WithCurrentTimestamp();
+            return eb.Build();
         }
     }
 }
