@@ -63,15 +63,14 @@ namespace CircusGroupsBot.Modules
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEventByTemplate", $"Creating new event from template {templateName} {eventName}, {dateandtime}, {description}"));
 
+
             var template = DbContext.Templates.FirstOrDefault(e => e.TemplateName == templateName);
             if(template == null)
             {
                 return ReplyAsync($"Template with name {templateName} was not found");
             }
 
-            var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, template.Tanks, template.Healers, template.DDs, template.Runners);
-
-            return CreateEvent(newEvent, Context.User, Context.Message);
+            return RunNewEvent(eventName, dateandtime, description, template.Tanks, template.Healers, template.DDs, template.Runners);
         }
 
         private Task CreateEvent(Event newEvent, IUser leaderUser, IUserMessage commandMessage)

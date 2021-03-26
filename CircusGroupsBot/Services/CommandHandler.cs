@@ -28,7 +28,7 @@ namespace CircusGroupsBot.Services
             await commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: services);
         }
 
-        private async Task MessageReceivedAsync(SocketMessage messageParam)
+        public async Task MessageReceivedAsync(SocketMessage messageParam)
         {
             var message = messageParam as SocketUserMessage;
 

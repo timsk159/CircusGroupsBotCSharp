@@ -12,13 +12,15 @@ namespace CircusGroupsBot.Services
     {
         private readonly DiscordSocketClient client;
         private readonly CircusDbContext DbContext;
+        private readonly CommandHandler commandHandler;
         private readonly Logger logger;
 
-        public MessageModificationHandler(CircusDbContext dbContext, DiscordSocketClient client, Logger logger)
+        public MessageModificationHandler(CircusDbContext dbContext, DiscordSocketClient client, Logger logger, CommandHandler commandHandler)
         {
             this.client = client;
             this.DbContext = dbContext;
             this.logger = logger;
+            this.commandHandler = commandHandler;
         }
 
         public void Init()
@@ -40,7 +42,7 @@ namespace CircusGroupsBot.Services
             }
         }
 
-        private Task Client_MessageUpdated(Cacheable<IMessage, ulong> arg1, SocketMessage arg2, ISocketMessageChannel arg3)
+        private Task Client_MessageUpdated(Cacheable<IMessage, ulong> messageCacheable, SocketMessage message, ISocketMessageChannel channel)
         {
             return Task.CompletedTask;
         }
