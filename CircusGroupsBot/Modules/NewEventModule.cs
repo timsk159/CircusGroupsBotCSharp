@@ -20,16 +20,42 @@ namespace CircusGroupsBot.Modules
             this.Logger = logger;
         }
 
+        [Command("newevent")]
+        [Summary("Create a new event!")]
+        [Priority(2)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description)
+        {
+            return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
+        }
 
         [Command("newevent")]
         [Summary("Create a new event!")]
-        public Task RunNewEvent(string eventName, string dateandtime, string description = "", int tanks = 0, int healers = 0, int dds = 0, int runners = 0)
+        [Priority(1)]
+        public Task RunNewEvent(string eventName, string dateandtime)
+        {
+            return RunNewEvent(eventName, dateandtime, "", 0, 0, 0, 0);
+        }
+
+        [Command("newevent")]
+        [Summary("Create a new event!")]
+        [Priority(3)]
+        public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners = 0)
+        {
+            return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, runners);
+        }
+
+        [Command("newevent")]
+        [Summary("Create a new event!")]
+        [Priority(4)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
             return CreateEvent(newEvent, Context.User);
         }
+
+
 
         [Command("neweventbytemplate")]
         [Summary("Create a new event based on a pre-created template")]
