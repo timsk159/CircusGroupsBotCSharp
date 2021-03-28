@@ -150,10 +150,6 @@ Leader: <@{LeaderUserID}>
                     }
                 }
             }
-            if (message.Reactions.Any())
-            {
-                await message.RemoveAllReactionsAsync();
-            }
             await message.AddReactionsAsync(allRoleReactionsEmoji.ToArray());
         }
 
@@ -201,6 +197,60 @@ Leader: <@{LeaderUserID}>
         {
             var requiredSignups = Signups.Where(e => e.IsRequired);
             return requiredSignups.Any() && requiredSignups.All(e => e.SignupFilled());
+        }
+
+        public void TransferSignups(Event newEvent, out List<Signup> newReserves)
+        {
+            newReserves = new List<Signup>();
+            if (newEvent.Signups.All(e => !e.IsRequired))
+            {
+                foreach(var signup in Signups)
+                {
+                    if (signup.SignupFilled())
+                    {
+                        newEvent.Signups.Add(signup);
+                    }
+                }
+                Signups = newEvent.Signups;
+                return;
+            }
+
+            foreach (var signup in Signups)
+            {
+                if(!signup.SignupFilled())
+                {
+                    continue;
+                }
+                bool shouldBeRequired = true;
+                if(signup.Role == Role.Maybe || signup.Role == Role.Reserve)
+                {
+                    //Don't add the same reserve or maybe more than once (if someone signed up in more than 1 role)
+                    if(newEvent.Signups.Any(e => e.Role == signup.Role && e.UserId == signup.UserId))
+                    {
+                        continue;
+                    }
+                    newEvent.Signups.Add(new Signup(signup.Role, false, signup.UserId));
+                    continue;
+                }
+
+                var spotInNewEvent = newEvent.Signups.FirstOrDefault(e => e.Role == signup.Role && e.IsRequired);
+                if(spotInNewEvent != null)
+                {
+                    spotInNewEvent.UserId = signup.UserId;
+                }
+                else
+                {
+                    //Don't add the same reserve or maybe more than once (if someone signed up in more than 1 role)
+                    if (newEvent.Signups.Any(e => e.Role == Role.Reserve && e.UserId == signup.UserId))
+                    {
+                        continue;
+                    }
+                    var newReserve = new Signup(Role.Reserve, false, signup.UserId);
+                    newEvent.Signups.Add(newReserve);
+                    newReserves.Add(newReserve);
+                }
+            }
+            Signups = newEvent.Signups;
         }
 
         async public void UpdateSignupsOnMessageAsync(IUserMessage message)

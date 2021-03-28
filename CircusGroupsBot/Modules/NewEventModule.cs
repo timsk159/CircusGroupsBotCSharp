@@ -103,18 +103,53 @@ namespace CircusGroupsBot.Modules
 
         private Task ModifyEvent(Event existingEvent, Event newEvent, IUserMessage eventMessage, IUser leaderUser)
         {
+            Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Modifying event {existingEvent.EventName}"));
+
             existingEvent.EventName = newEvent.EventName;
             existingEvent.DateAndTime = newEvent.DateAndTime;
             existingEvent.Description = newEvent.Description;
 
-            //TODO: Move existing signups
-            existingEvent.Signups = newEvent.Signups;
+            var newReserves = new List<Signup>();
+            existingEvent.TransferSignups(newEvent, out newReserves);
+
+            //Anyone that was moved to reserved needs to be notified, and their old reaction removed
+            foreach(var newReserve in newReserves)
+            {
+                var getUserTask = Context.Channel.GetUserAsync(newReserve.UserId);
+                getUserTask.ContinueWith(t => t.Result.SendMessageAsync($"You were moved to reserve as {existingEvent.EventName} was modified, and no longer had room for your role"));
+                var emotesToRemoveForUser = new IEmote[] { Role.DD.GetEmoji(), Role.Healer.GetEmoji(), Role.Tank.GetEmoji() };
+                getUserTask.ContinueWith(t => eventMessage.RemoveReactionsAsync(t.Result, emotesToRemoveForUser));
+            }
+
+            //Remove reactions that are no longer needed
+            //There might be an easier way to write this code? It seems really verbose... Maybe ternaries? I dunno
+            if (newEvent.Signups.Any(e => e.IsRequired))
+            {
+                var hasTanks = newEvent.Signups.Any(e => e.Role == Role.Tank && e.IsRequired);
+                var hasHealers = newEvent.Signups.Any(e => e.Role == Role.Healer && e.IsRequired);
+                var hasDDs = newEvent.Signups.Any(e => e.Role == Role.DD && e.IsRequired);
+
+                var emotesToRemoveForBot = new List<IEmote>();
+                if (!hasTanks)
+                {
+                    emotesToRemoveForBot.Add(Role.Tank.GetEmoji());
+                }
+                if (!hasHealers)
+                {
+                    emotesToRemoveForBot.Add(Role.Healer.GetEmoji());
+                }
+                if (!hasDDs)
+                {
+                    emotesToRemoveForBot.Add(Role.DD.GetEmoji());
+                }
+                eventMessage.RemoveReactionsAsync(Context.Client.CurrentUser, emotesToRemoveForBot.ToArray());
+            }
 
             DbContext.SaveChanges();
 
             var messageTask = eventMessage.ModifyAsync(e => e.Embed = GetEmbedForEvent(existingEvent, leaderUser));
-            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(eventMessage));
-            messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(eventMessage));
+            messageTask.ContinueWith(cont => existingEvent.UpdateSignupsOnMessageAsync(eventMessage));
+            messageTask.ContinueWith(cont => existingEvent.AddReactionsToMessageAsync(eventMessage));
             return messageTask;
         }
 
