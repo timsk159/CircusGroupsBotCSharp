@@ -221,7 +221,7 @@ Leader: <@{LeaderUserID}>
                 {
                     continue;
                 }
-                bool shouldBeRequired = true;
+
                 if(signup.Role == Role.Maybe || signup.Role == Role.Reserve)
                 {
                     //Don't add the same reserve or maybe more than once (if someone signed up in more than 1 role)
