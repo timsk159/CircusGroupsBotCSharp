@@ -12,9 +12,13 @@ namespace CircusGroupsBot.Services
         public CircusDbContext CreateDbContext(string[] args)
         {
             var dbPass = Environment.GetEnvironmentVariable(Config.DB_PASSWORD_ENV_VAR);
+            var userName = Environment.GetEnvironmentVariable(Config.DB_USER_ENV_VAR);
+
+            if (string.IsNullOrEmpty(userName))
+                userName = "root";
 
             var optionsBuilder = new DbContextOptionsBuilder<CircusDbContext>();
-            optionsBuilder.UseMySql($"server=localhost;user=root;password={dbPass};database=circusdb;charset=utf8mb4",
+            optionsBuilder.UseMySql($"server=localhost;user={userName};password={dbPass};database=circusdb;charset=utf8mb4",
                         mySqlOptions => mySqlOptions
                             .ServerVersion(new Version(10, 3, 27), ServerType.MariaDb)
                             .CharSetBehavior(CharSetBehavior.NeverAppend));
