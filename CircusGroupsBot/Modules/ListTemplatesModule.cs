@@ -20,7 +20,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("listtemplates")]
-        [Summary("Will send you a message with details of all created templates")]
+        [Summary("Will send you a message with details of all existing templates")]
         public Task RunModule()
         {
             var user = Context.User;

@@ -22,7 +22,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newtemplate")]
-        [Summary("Create a new template!")]
+        [Summary("\"Template Name\" 1 1 1 1")]
         public Task RunModule(string templateName, int tanks, int healers, int dds, int runners = 0)
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewTemplate", $"Creating new template {templateName}, {tanks}, {healers}, {dds}, {runners}"));

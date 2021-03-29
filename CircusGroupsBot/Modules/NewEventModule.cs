@@ -19,7 +19,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("\"name\" \"date\"")]
+        [Summary("\"Event Name\" \"Date\"")]
         [Priority(1)]
         public Task RunNewEvent(string eventName, string dateandtime)
         {
@@ -27,7 +27,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("\"name\" \"date\" \"description\"")]
+        [Summary("\"Event Name\" \"Date\" \"Description\"")]
         [Priority(2)]
         public Task RunNewEvent(string eventName, string dateandtime, string description)
         {
@@ -35,7 +35,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("\"name\" \"date\" 1 1 1 1")]
+        [Summary("\"Event Name\" \"Date\" 1 1 1 1")]
         [Priority(3)]
         public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners = 0)
         {
@@ -43,7 +43,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("\"name\" \"date\" \"description\" 1 1 1 1")]
+        [Summary("\"Event Name\" \"Date\" \"Description\" 1 1 1 1")]
         [Priority(4)]
         public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners = 0)
         {

@@ -20,7 +20,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("deletetemplate")]
-        [Summary("Delete a pre-created template")]
+        [Summary("Delete an existing template")]
         public Task RunModule(string templateName)
         {
             var template = DbContext.Templates.FirstOrDefault(e => e.TemplateName == templateName);
