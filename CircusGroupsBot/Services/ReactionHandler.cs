@@ -100,6 +100,11 @@ namespace CircusGroupsBot.Services
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
+                //This is to handle people that were moved into reserve due to an event being modified
+                if (role == Role.Reserve && eventForMessage.Signups.Any(e => e.Role == Role.Reserve && e.UserId == reaction.UserId))
+                {
+                    return;
+                }
                 bool wasFull = eventForMessage.IsFull();
                 var didAddSignup = eventForMessage.TryAddSignup(role, reaction.UserId);
 
