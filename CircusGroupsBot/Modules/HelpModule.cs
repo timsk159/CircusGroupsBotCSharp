@@ -69,6 +69,10 @@ namespace CircusGroupsBot.Modules
             var allRoles = Enum.GetValues(typeof(Role)).OfType<Role>();
             foreach(var role in allRoles)
             {
+                if(role == Role.None)
+                {
+                    continue;
+                }
                 sb.Append(Environment.NewLine);
                 sb.Append($"{role.GetEmoji()} is for {role.GetName()}");
             }
