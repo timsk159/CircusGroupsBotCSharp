@@ -44,6 +44,10 @@ namespace CircusGroupsBot
         private ServiceProvider ConfigureServices()
         {
             var dbPass = Environment.GetEnvironmentVariable(Config.DB_PASSWORD_ENV_VAR);
+            var dbUser = Environment.GetEnvironmentVariable(Config.DB_USER_ENV_VAR);
+
+            if (string.IsNullOrEmpty(dbUser))
+                dbUser = "root";
 
             var discordSocketConfig = new DiscordSocketConfig();
             discordSocketConfig.AlwaysDownloadUsers = true;
@@ -54,7 +58,7 @@ namespace CircusGroupsBot
                 .AddDbContextPool<CircusDbContext>(
                 dbContextOptions => dbContextOptions
                     .UseMySql(
-                        $"server=localhost;user=root;password={dbPass};database=circusdb;charset=utf8mb4",
+                        $"server=localhost;user={dbUser};password={dbPass};database=circusdb;charset=utf8mb4",
                         mySqlOptions => mySqlOptions
                             .ServerVersion(new Version(10, 3, 27), ServerType.MariaDb)
                             .CharSetBehavior(CharSetBehavior.NeverAppend))
