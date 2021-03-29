@@ -1,7 +1,9 @@
-﻿using Discord;
+﻿using CircusGroupsBot.Models;
+using Discord;
 using Discord.Commands;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +19,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("help")]
-        [Summary("Command to get list of other commands from the bot")]
+        [Summary("Get help with using the bot")]
         public Task RunModuleAsync()
         {
             var user = Context.User;
@@ -27,24 +29,57 @@ namespace CircusGroupsBot.Modules
             }
             var eb = new EmbedBuilder();
             eb.WithTitle("Help");
-            eb.WithDescription("Following this is a list of commands and descriptions of what they do");
+            eb.WithDescription($"Following this is a list of commands and descriptions of what they do{Environment.NewLine}");
 
-            var commands = new Dictionary<string, string>();
-            foreach(var module in services.Modules)
+            var commands = new List<Command>();
+            foreach (var module in services.Modules)
             {
-                commands.Add(module.Commands[0].Aliases[0], module.Commands[0].Summary);
+                module.Commands.Select(x => x.Aliases[0]).Distinct().ToList().ForEach(command =>
+                {
+                    var summaries = module.Commands.Where(cmd => cmd.Aliases[0].Equals(command)).Select(cmd => cmd.Summary).ToList();
+                    commands.Add(new Command()
+                    {
+                        Alias = command,
+                        Commands = summaries
+                    });
+                });
             }
 
-            var sb = new StringBuilder();
-            sb.Append(Environment.NewLine);
-            foreach(var command in commands)
+            foreach (var command in commands)
             {
-                sb.Append($"`{command.Key}`: {command.Value}{Environment.NewLine}{Environment.NewLine}");
+                var sb = new StringBuilder();
+                for (int i = 0; i < command.Commands.Count; i++)
+                {
+                    sb.Append($"- {command.Commands[i]}{Environment.NewLine}");
+                }
+                sb.Append(Environment.NewLine);
+                eb.AddField($"${command.Alias}", sb.ToString());
             }
 
-            eb.AddField("Commands", sb.ToString());
+            eb.AddField("Signing up", HowToSignUp());
 
             return user.SendMessageAsync(embed: eb.Build());
+        }
+
+        private string HowToSignUp()
+        {
+            var sb = new StringBuilder();
+            sb.Append("To sign up for a new event react with the appropriate emoji attached to the event message");
+            sb.Append(Environment.NewLine);
+            sb.Append($"🛡️ is for a tank");
+            sb.Append(Environment.NewLine);
+            sb.Append($"🚑 is for a healer");
+            sb.Append(Environment.NewLine);
+            sb.Append($"⚔️ is for a DD");
+            sb.Append(Environment.NewLine);
+            sb.Append($"🏃 is for a runner");
+            sb.Append(Environment.NewLine);
+            sb.Append($"⏲️ is for a maybe");
+            sb.Append(Environment.NewLine);
+            sb.Append($"❔ is for a reservation");
+            sb.Append(Environment.NewLine);
+
+            return sb.ToString();
         }
     }
 }

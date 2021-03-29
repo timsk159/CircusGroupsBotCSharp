@@ -1,13 +1,9 @@
-﻿using Discord.Commands;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using CircusGroupsBot.Events;
+﻿using CircusGroupsBot.Events;
 using CircusGroupsBot.Services;
 using Discord;
+using Discord.Commands;
 using System.Linq;
-using Discord.WebSocket;
+using System.Threading.Tasks;
 
 namespace CircusGroupsBot.Modules
 {
@@ -22,15 +18,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
-        [Priority(2)]
-        public Task RunNewEvent(string eventName, string dateandtime, string description)
-        {
-            return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
-        }
-
-        [Command("newevent")]
-        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Summary("\"name\" \"date\"")]
         [Priority(1)]
         public Task RunNewEvent(string eventName, string dateandtime)
         {
@@ -38,7 +26,15 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Summary("\"name\" \"date\" \"description\"")]
+        [Priority(2)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description)
+        {
+            return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
+        }
+
+        [Command("newevent")]
+        [Summary("\"name\" \"date\" 1 1 1 1")]
         [Priority(3)]
         public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners = 0)
         {
@@ -46,7 +42,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("newevent")]
-        [Summary("Create a new event!\r\n\tRequires a Name and Time\r\n\tOptional parameters: Description, No. Tanks, No. Healers, No. DDs, No. Runners")]
+        [Summary("\"name\" \"date\" \"description\" 1 1 1 1")]
         [Priority(4)]
         public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners = 0)
         {
@@ -69,7 +65,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("neweventbytemplate")]
-        [Summary("Create a new event based on a pre-created template")]
+        [Summary("\"Template Name\" \"Event Name\" \"Date\" \"Description\"")]
         public Task RunNewEventByTemplate(string templateName, string eventName, string dateandtime, string description = "")
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEventByTemplate", $"Creating new event from template {templateName} {eventName}, {dateandtime}, {description}"));
