@@ -1,4 +1,5 @@
-﻿using CircusGroupsBot.Models;
+﻿using CircusGroupsBot.Events;
+using CircusGroupsBot.Models;
 using Discord;
 using Discord.Commands;
 using System;
@@ -65,20 +66,13 @@ namespace CircusGroupsBot.Modules
         {
             var sb = new StringBuilder();
             sb.Append("To sign up for a new event react with the appropriate emoji attached to the event message");
+            var allRoles = Enum.GetValues(typeof(Role)).OfType<Role>();
+            foreach(var role in allRoles)
+            {
+                sb.Append(Environment.NewLine);
+                sb.Append($"{role.GetEmoji()} is for {role.GetName()}");
+            }
             sb.Append(Environment.NewLine);
-            sb.Append($"🛡️ is for a tank");
-            sb.Append(Environment.NewLine);
-            sb.Append($"🚑 is for a healer");
-            sb.Append(Environment.NewLine);
-            sb.Append($"⚔️ is for a DD");
-            sb.Append(Environment.NewLine);
-            sb.Append($"🏃 is for a runner");
-            sb.Append(Environment.NewLine);
-            sb.Append($"⏲️ is for a maybe");
-            sb.Append(Environment.NewLine);
-            sb.Append($"❔ is for a reservation");
-            sb.Append(Environment.NewLine);
-
             return sb.ToString();
         }
     }
