@@ -3,14 +3,16 @@ using System;
 using CircusGroupsBot.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CircusGroupsBot.Migrations
 {
     [DbContext(typeof(CircusDbContext))]
-    partial class CircusDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210330211426_AddDateToSignups")]
+    partial class AddDateToSignups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

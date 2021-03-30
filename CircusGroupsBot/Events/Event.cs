@@ -36,22 +36,23 @@ namespace CircusGroupsBot.Events
     int tanks = 0, int healers = 0, int dds = 0, int runners = 0) : this(leaderUserID, eventName, dateAndTime, eventMessageId, description)
         {
             Signups = new List<Signup>();
+            var time = DateTime.UtcNow;
 
             for(int i = 0; i < tanks; ++i)
             {
-                Signups.Add(new Signup(Role.Tank, true));
+                Signups.Add(new Signup(Role.Tank, true, time));
             }
             for(int i = 0; i < healers; ++i)
             {
-                Signups.Add(new Signup(Role.Healer, true));
+                Signups.Add(new Signup(Role.Healer, true, time));
             }
             for (int i = 0; i < dds; ++i)
             {
-                Signups.Add(new Signup(Role.DD, true));
+                Signups.Add(new Signup(Role.DD, true, time));
             }
             for (int i = 0; i < runners; ++i)
             {
-                Signups.Add(new Signup(Role.Runner, true));
+                Signups.Add(new Signup(Role.Runner, true, time));
             }
         }
 
@@ -167,7 +168,7 @@ Leader: <@{LeaderUserID}>
             }
             else
             {
-                Signups.Add(new Signup(role, false, userID));
+                Signups.Add(new Signup(role, false, DateTime.UtcNow, userID));
                 return true;
             }
         }
@@ -229,7 +230,7 @@ Leader: <@{LeaderUserID}>
                     {
                         continue;
                     }
-                    newEvent.Signups.Add(new Signup(signup.Role, false, signup.UserId));
+                    newEvent.Signups.Add(new Signup(signup.Role, false, DateTime.UtcNow, signup.UserId));
                     continue;
                 }
 
@@ -245,7 +246,7 @@ Leader: <@{LeaderUserID}>
                     {
                         continue;
                     }
-                    var newReserve = new Signup(Role.Reserve, false, signup.UserId);
+                    var newReserve = new Signup(Role.Reserve, false, DateTime.UtcNow, signup.UserId);
                     newEvent.Signups.Add(newReserve);
                     newReserves.Add(newReserve);
                 }
