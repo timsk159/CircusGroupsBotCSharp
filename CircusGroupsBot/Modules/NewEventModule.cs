@@ -69,6 +69,11 @@ namespace CircusGroupsBot.Modules
         {
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
 
+            if(tanks + healers + dds + runners > 16)
+            {
+                return ReplyAsync("You asked for too many people in your event. The maximum group size is 16");
+            }
+
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
 
             //Check for editing a message to modify an event
