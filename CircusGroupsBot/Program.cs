@@ -1,5 +1,4 @@
 ﻿using CircusGroupsBot.Services;
-using CircusGroupsBot.TypeReaders;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
