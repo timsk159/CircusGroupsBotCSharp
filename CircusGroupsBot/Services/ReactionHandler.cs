@@ -88,18 +88,18 @@ namespace CircusGroupsBot.Services
             //Must do this, as the message in the Cacheable is not available 90% of time.
             var message = await messageCacheable.GetOrDownloadAsync();
 
-            //Remove people adding emojies we don't recognise
-            var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
-            if (role == Role.None)
-            {
-                var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                return;
-            }
-
             var messageId = messageCacheable.Id;
             var eventForMessage = DbContext.Events.AsQueryable().Where(e => e.EventMessageId == messageId).FirstOrDefault();
             if (eventForMessage != null)
             {
+                //Remove people adding emojies we don't recognise
+                var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
+                if (role == Role.None)
+                {
+                    var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
+                    return;
+                }
+
                 //This is to handle people that were moved into reserve due to an event being modified
                 if (role == Role.Reserve && eventForMessage.Signups.Any(e => e.Role == Role.Reserve && e.UserId == reaction.UserId))
                 {
