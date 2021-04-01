@@ -1,4 +1,5 @@
 ﻿using CircusGroupsBot.Services;
+using CircusGroupsBot.TypeReaders;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -32,6 +33,7 @@ namespace CircusGroupsBot
 
                 await client.LoginAsync(TokenType.Bot, myToken);
                 await client.StartAsync();
+
 
                 await services.GetRequiredService<CommandHandler>().InitAsync();
                 services.GetRequiredService<ReactionHandler>().Init();

@@ -2,6 +2,7 @@
 using CircusGroupsBot.Services;
 using Discord;
 using Discord.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,35 +19,60 @@ namespace CircusGroupsBot.Modules
             this.Logger = logger;
         }
 
+        //NOTE:
+        //Due to ambigious parsing between int and string, the priority on the overloads here is very important, no touchy!
+
         [Command("newevent")]
         [Summary("\"Event Name\" \"Date\"")]
-        [Priority(1)]
+        [Priority(2)]
         public Task RunNewEvent(string eventName, string dateandtime)
         {
+            Console.WriteLine("1");
             return RunNewEvent(eventName, dateandtime, "", 0, 0, 0, 0);
         }
 
         [Command("newevent")]
         [Summary("\"Event Name\" \"Date\" \"Description\"")]
-        [Priority(2)]
+        [Priority(1)]
         public Task RunNewEvent(string eventName, string dateandtime, string description)
         {
+            Console.WriteLine("2");
             return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
         }
 
         [Command("newevent")]
-        [Summary("\"Event Name\" \"Date\" 1 1 1 1")]
+        [Summary("\"Event Name\" \"Date\" 1 1 1")]
         [Priority(3)]
-        public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners = 0)
+        public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds)
         {
+            Console.WriteLine("3");
+            return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, 0);
+        }
+
+        [Command("newevent")]
+        [Summary("\"Event Name\" \"Date\" 1 1 1 1")]
+        [Priority(5)]
+        public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners)
+        {
+            Console.WriteLine("4");
             return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, runners);
         }
 
         [Command("newevent")]
         [Summary("\"Event Name\" \"Date\" \"Description\" 1 1 1 1")]
         [Priority(4)]
-        public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners = 0)
+        public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds)
         {
+            Console.WriteLine("5");
+            return RunNewEvent(eventName, dateandtime, description, tanks, healers, dds, 0);
+        }
+
+        [Command("newevent")]
+        [Summary("\"Event Name\" \"Date\" \"Description\" 1 1 1 1")]
+        [Priority(6)]
+        public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners)
+        {
+            Console.WriteLine("6");
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
 
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
