@@ -26,7 +26,7 @@ namespace CircusGroupsBot.Events
 
         public Signup(Role role, IUser user, DateTime signupDate, bool isRequired) : this(role, isRequired, signupDate, user.Id) { }
 
-        public bool SignupFilled()
+        public bool IsFilled()
         {
             return UserId != 0;
         }

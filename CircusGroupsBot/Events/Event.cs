@@ -158,7 +158,7 @@ Leader: <@{LeaderUserID}>
         {
             if (role != Role.Maybe && role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
             {
-                var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.SignupFilled());
+                var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.IsFilled());
                 if (freeSlot != null)
                 {
                     freeSlot.UserId = userID;
@@ -197,9 +197,10 @@ Leader: <@{LeaderUserID}>
         public bool IsFull()
         {
             var requiredSignups = Signups.Where(e => e.IsRequired);
-            return requiredSignups.Any() && requiredSignups.All(e => e.SignupFilled());
+            return requiredSignups.Any() && requiredSignups.All(e => e.IsFilled());
         }
 
+        //TODO: This is written in a super stupid way. Needs re-writing :(
         public void TransferSignups(Event newEvent, out List<Signup> newReserves)
         {
             newReserves = new List<Signup>();
@@ -207,7 +208,7 @@ Leader: <@{LeaderUserID}>
             {
                 foreach (var signup in Signups)
                 {
-                    if (signup.SignupFilled())
+                    if (signup.IsFilled())
                     {
                         newEvent.Signups.Add(signup);
                     }
@@ -218,7 +219,7 @@ Leader: <@{LeaderUserID}>
 
             foreach (var signup in Signups)
             {
-                if (!signup.SignupFilled())
+                if (!signup.IsFilled())
                 {
                     continue;
                 }
@@ -234,7 +235,7 @@ Leader: <@{LeaderUserID}>
                     continue;
                 }
 
-                var spotInNewEvent = newEvent.Signups.FirstOrDefault(e => e.Role == signup.Role && e.IsRequired);
+                var spotInNewEvent = newEvent.Signups.FirstOrDefault(e => e.Role == signup.Role && e.IsRequired && !e.IsFilled());
                 if (spotInNewEvent != null)
                 {
                     spotInNewEvent.UserId = signup.UserId;
@@ -264,7 +265,7 @@ Leader: <@{LeaderUserID}>
                 foreach (var signup in sortedSignups)
                 {
                     messageStr += $"{signup.Role.GetEmoji().Name}: ";
-                    if (signup.SignupFilled())
+                    if (signup.IsFilled())
                     {
                         messageStr += $"<@{signup.UserId}>";
                     }
