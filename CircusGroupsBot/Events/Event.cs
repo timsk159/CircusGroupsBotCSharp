@@ -38,11 +38,11 @@ namespace CircusGroupsBot.Events
             Signups = new List<Signup>();
             var time = DateTime.UtcNow;
 
-            for(int i = 0; i < tanks; ++i)
+            for (int i = 0; i < tanks; ++i)
             {
                 Signups.Add(new Signup(Role.Tank, true, time));
             }
-            for(int i = 0; i < healers; ++i)
+            for (int i = 0; i < healers; ++i)
             {
                 Signups.Add(new Signup(Role.Healer, true, time));
             }
@@ -78,7 +78,7 @@ Leader: <@{LeaderUserID}>
             var returnStr = "\nReact With:\n";
             var hasRequiredRoles = Signups.Any(e => e.IsRequired);
 
-            foreach(Role val in Enum.GetValues(typeof(Role)))
+            foreach (Role val in Enum.GetValues(typeof(Role)))
             {
                 if (val == Role.None)
                 {
@@ -108,7 +108,7 @@ Leader: <@{LeaderUserID}>
                         }
                     }
                 }
-                if(shouldAddRole)
+                if (shouldAddRole)
                 {
                     returnStr += $"{val.GetEmoji().Name} to sign up as {val.GetName()}\n";
                 }
@@ -156,10 +156,10 @@ Leader: <@{LeaderUserID}>
 
         public bool TryAddSignup(Role role, ulong userID)
         {
-            if(role != Role.Maybe && role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
+            if (role != Role.Maybe && role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
             {
                 var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.SignupFilled());
-                if(freeSlot != null)
+                if (freeSlot != null)
                 {
                     freeSlot.UserId = userID;
                     return true;
@@ -180,11 +180,11 @@ Leader: <@{LeaderUserID}>
 
         public void RemoveSignup(Signup signupToRemove)
         {
-            if(signupToRemove == null)
+            if (signupToRemove == null)
             {
                 return;
             }
-            if(signupToRemove.IsRequired == true)
+            if (signupToRemove.IsRequired == true)
             {
                 signupToRemove.UserId = 0;
             }
@@ -205,7 +205,7 @@ Leader: <@{LeaderUserID}>
             newReserves = new List<Signup>();
             if (newEvent.Signups.All(e => !e.IsRequired))
             {
-                foreach(var signup in Signups)
+                foreach (var signup in Signups)
                 {
                     if (signup.SignupFilled())
                     {
@@ -218,15 +218,15 @@ Leader: <@{LeaderUserID}>
 
             foreach (var signup in Signups)
             {
-                if(!signup.SignupFilled())
+                if (!signup.SignupFilled())
                 {
                     continue;
                 }
 
-                if(signup.Role == Role.Maybe || signup.Role == Role.Reserve)
+                if (signup.Role == Role.Maybe || signup.Role == Role.Reserve)
                 {
                     //Don't add the same reserve or maybe more than once (if someone signed up in more than 1 role)
-                    if(newEvent.Signups.Any(e => e.Role == signup.Role && e.UserId == signup.UserId))
+                    if (newEvent.Signups.Any(e => e.Role == signup.Role && e.UserId == signup.UserId))
                     {
                         continue;
                     }
@@ -235,7 +235,7 @@ Leader: <@{LeaderUserID}>
                 }
 
                 var spotInNewEvent = newEvent.Signups.FirstOrDefault(e => e.Role == signup.Role && e.IsRequired);
-                if(spotInNewEvent != null)
+                if (spotInNewEvent != null)
                 {
                     spotInNewEvent.UserId = signup.UserId;
                 }
@@ -271,26 +271,34 @@ Leader: <@{LeaderUserID}>
                     messageStr += "\n";
                 }
 
-                if (messageStr != "")
-                {
-                    var embed = message.Embeds.FirstOrDefault();
-                    if (embed != null)
-                    {
-                        var eb = embed.ToEmbedBuilder();
 
-                        var signupsField = eb.Fields.FirstOrDefault(e => e.Name == "Signups");
-                        if (signupsField != null)
+                var embed = message.Embeds.FirstOrDefault();
+                if (embed != null)
+                {
+                    var eb = embed.ToEmbedBuilder();
+
+                    var signupsField = eb.Fields.FirstOrDefault(e => e.Name == "Signups");
+                    if (signupsField != null)
+                    {
+                        if (string.IsNullOrEmpty(messageStr))
                         {
-                            signupsField.Value = messageStr;
+                            eb.Fields.Remove(signupsField);
                         }
                         else
                         {
+                            signupsField.Value = messageStr;
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(messageStr))
+                        {
                             eb.AddField("Signups", messageStr);
                         }
-
-                        await message.ModifyAsync(x => { x.Embed = eb.Build(); });
                     }
-                }                
+
+                    await message.ModifyAsync(x => { x.Embed = eb.Build(); });
+                }
             }
         }
     }
