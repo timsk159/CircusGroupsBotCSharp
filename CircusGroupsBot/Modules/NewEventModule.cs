@@ -27,7 +27,6 @@ namespace CircusGroupsBot.Modules
         [Priority(2)]
         public Task RunNewEvent(string eventName, string dateandtime)
         {
-            Console.WriteLine("1");
             return RunNewEvent(eventName, dateandtime, "", 0, 0, 0, 0);
         }
 
@@ -36,7 +35,6 @@ namespace CircusGroupsBot.Modules
         [Priority(1)]
         public Task RunNewEvent(string eventName, string dateandtime, string description)
         {
-            Console.WriteLine("2");
             return RunNewEvent(eventName, dateandtime, description, 0, 0, 0, 0);
         }
 
@@ -45,7 +43,6 @@ namespace CircusGroupsBot.Modules
         [Priority(3)]
         public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds)
         {
-            Console.WriteLine("3");
             return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, 0);
         }
 
@@ -54,7 +51,6 @@ namespace CircusGroupsBot.Modules
         [Priority(5)]
         public Task RunNewEvent(string eventName, string dateandtime, int tanks, int healers, int dds, int runners)
         {
-            Console.WriteLine("4");
             return RunNewEvent(eventName, dateandtime, "", tanks, healers, dds, runners);
         }
 
@@ -63,7 +59,6 @@ namespace CircusGroupsBot.Modules
         [Priority(4)]
         public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds)
         {
-            Console.WriteLine("5");
             return RunNewEvent(eventName, dateandtime, description, tanks, healers, dds, 0);
         }
 
@@ -72,7 +67,6 @@ namespace CircusGroupsBot.Modules
         [Priority(6)]
         public Task RunNewEvent(string eventName, string dateandtime, string description, int tanks, int healers, int dds, int runners)
         {
-            Console.WriteLine("6");
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Creating new event {eventName}, {dateandtime}, {description}, {tanks}, {healers}, {dds}, {runners}"));
 
             var newEvent = new Event(Context.User, eventName, dateandtime, 0UL, description, tanks, healers, dds, runners);
