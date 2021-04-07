@@ -1,4 +1,5 @@
-﻿using CircusGroupsBot.Services;
+﻿using CircusGroupsBot.Events;
+using CircusGroupsBot.Services;
 using Discord;
 using Discord.Commands;
 using System;
@@ -42,9 +43,9 @@ namespace CircusGroupsBot.Modules
 
             foreach (var @event in request)
             {
-                var role = @event.Signups.Where(e => e.UserId == user.Id).FirstOrDefault().Role.ToString();
+                var role = @event.Signups.Where(e => e.UserId == user.Id).FirstOrDefault().Role;
                 sb.Append(Environment.NewLine);
-                sb.Append($"{@event.EventName}: {@event.DateAndTime} as {role}");
+                sb.Append($"{@event.EventName}: {@event.DateAndTime} as {role.GetEmoji()}");
             }
 
             eb.AddField("Signups", sb.ToString());
