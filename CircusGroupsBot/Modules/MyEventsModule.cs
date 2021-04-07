@@ -18,7 +18,7 @@ namespace CircusGroupsBot.Modules
         }
 
         [Command("myevents")]
-        [Summary("7")]
+        [Summary("You can optionally choose how far back in time to check. The default is 7 days:\n$myevents 5")]
         public Task RunModuleAsync(int days = 7)
         {
             var user = Context.User;
