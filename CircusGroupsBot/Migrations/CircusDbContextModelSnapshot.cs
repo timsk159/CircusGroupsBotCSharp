@@ -86,6 +86,9 @@ namespace CircusGroupsBot.Migrations
                             b1.Property<bool>("IsRequired")
                                 .HasColumnType("tinyint(1)");
 
+                            b1.Property<int>("ReserveRole")
+                                .HasColumnType("int");
+
                             b1.Property<int>("Role")
                                 .HasColumnType("int");
 

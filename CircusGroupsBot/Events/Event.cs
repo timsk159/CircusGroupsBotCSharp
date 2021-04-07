@@ -156,19 +156,24 @@ Leader: <@{LeaderUserID}>
 
         public bool TryAddSignup(Role role, ulong userID)
         {
-            if (role != Role.Maybe && role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
+            return TryAddSignup(new Signup(role, false, DateTime.UtcNow, userID));
+        }
+
+        public bool TryAddSignup(Signup signup)
+        {
+            if (signup.Role != Role.Maybe && signup.Role != Role.Reserve && Signups.Any(e => e.IsRequired == true))
             {
-                var freeSlot = Signups.FirstOrDefault(e => e.Role == role && !e.IsFilled());
+                var freeSlot = Signups.FirstOrDefault(e => e.Role == signup.Role && !e.IsFilled());
                 if (freeSlot != null)
                 {
-                    freeSlot.UserId = userID;
+                    freeSlot.UserId = signup.UserId;
                     return true;
                 }
                 return false;
             }
             else
             {
-                Signups.Add(new Signup(role, false, DateTime.UtcNow, userID));
+                Signups.Add(signup);
                 return true;
             }
         }
@@ -198,6 +203,32 @@ Leader: <@{LeaderUserID}>
         {
             var requiredSignups = Signups.Where(e => e.IsRequired);
             return requiredSignups.Any() && requiredSignups.All(e => e.IsFilled());
+        }
+
+        public bool IsRoleFull(Role role)
+        {
+            var requiredSignups = Signups.Where(e => e.IsRequired);
+            if(!requiredSignups.Any())
+            {
+                return false;
+            }
+            return requiredSignups.Any(e => !e.IsFilled());
+        }
+
+        public Signup GetNextReserve(Role priorityRole = Role.None)
+        {
+            Signup nextReserve = null;
+
+            if (priorityRole != Role.None)
+            {
+                nextReserve = Signups.FirstOrDefault(e => e.Role == Role.Reserve && e.ReserveRole == priorityRole);
+            }
+            if(nextReserve == null)
+            {
+                nextReserve = Signups.FirstOrDefault(e => e.Role == Role.Reserve);
+            }
+
+            return nextReserve;
         }
 
         //TODO: This is written in a super stupid way. Needs re-writing :(
@@ -264,7 +295,14 @@ Leader: <@{LeaderUserID}>
 
                 foreach (var signup in sortedSignups)
                 {
-                    messageStr += $"{signup.Role.GetEmoji().Name}: ";
+                    if(signup.ReserveRole != Role.None)
+                    {
+                        messageStr += $"{signup.Role.GetEmoji().Name}{signup.ReserveRole.GetEmoji().Name}: ";
+                    }
+                    else
+                    {
+                        messageStr += $"{signup.Role.GetEmoji().Name}: ";
+                    }
                     if (signup.IsFilled())
                     {
                         messageStr += $"<@{signup.UserId}>";

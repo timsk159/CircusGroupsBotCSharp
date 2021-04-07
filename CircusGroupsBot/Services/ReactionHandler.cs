@@ -2,6 +2,7 @@
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,10 +43,18 @@ namespace CircusGroupsBot.Services
                 var message = await messageCacheable.GetOrDownloadAsync();
 
                 var role = RoleExtensions.EmojiToRole(reaction.Emote.Name);
-                var existingSignup = eventForMessage.Signups.FirstOrDefault(e => e.Role == role && e.UserId == reaction.UserId);
+                var existingSignup = eventForMessage.Signups.FirstOrDefault(e => (e.Role == role || e.ReserveRole == role) && e.UserId == reaction.UserId);
                 if (existingSignup != null)
                 {
+                    //If someone is a role-specific-reserve, we only remove their signup if they hit the role emoji, not the reserve emoji.
+                    if(role == Role.Reserve && existingSignup.ReserveRole != Role.None)
+                    {
+                        return;
+                    }
+
                     bool wasFull = eventForMessage.IsFull();
+                    bool roleWasFull = eventForMessage.IsRoleFull(role);
+
                     eventForMessage.RemoveSignup(existingSignup);
                     DbContext.SaveChanges();
 
@@ -56,20 +65,31 @@ namespace CircusGroupsBot.Services
                     {
                         var returnTask = user.SendMessageAsync($"You are no longer joining {eventForMessage.EventName}");
 
-                        if(wasFull && !eventForMessage.IsFull())
+                        Signup nextReserve = null;
+
+                        if (wasFull && !eventForMessage.IsFull())
                         {
-                            var nextReserve = eventForMessage.Signups.FirstOrDefault(e => e.Role == Role.Reserve);
                             var leaderMsg = $"Your event {eventForMessage.EventName} is no longer full, as {user.Mention} is no longer joining";
+                            nextReserve = eventForMessage.GetNextReserve();
                             if (nextReserve != null)
                             {
-                                var reserveUser = await channel.GetUserAsync(nextReserve.UserId);
-                                await returnTask.ContinueWith(t => reserveUser.SendMessageAsync($"A spot has opened up in {eventForMessage.EventName} and you are next on the reserves!"));
                                 leaderMsg += $"\nAs <@{nextReserve.UserId}> is the first reserve, they have been notified";
                             }
 
                             var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);
                             await returnTask.ContinueWith(t => leaderUser.SendMessageAsync(leaderMsg));
                         }
+                        else if(roleWasFull && !eventForMessage.IsRoleFull(role))
+                        {
+                            nextReserve = eventForMessage.GetNextReserve(role);
+                        }
+
+                        if (nextReserve != null)
+                        {
+                            var reserveUser = await channel.GetUserAsync(nextReserve.UserId);
+                            await returnTask.ContinueWith(t => reserveUser.SendMessageAsync($"A spot has opened up in {eventForMessage.EventName} and you are next on the reserves!"));
+                        }
+
                         await returnTask;
                     }
                 }
@@ -127,9 +147,12 @@ namespace CircusGroupsBot.Services
                 }
                 else
                 {
-                    var msgTask = message.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    await msgTask.ContinueWith(t => user.SendMessageAsync($"Sorry, you were not signed up to {eventForMessage.EventName} because we don't need any more {role.GetEmoji()}'s"));
-                    await msgTask;
+                    var signup = new Signup(Role.Reserve, role, false, DateTime.Now, reaction.UserId);
+                    eventForMessage.TryAddSignup(signup);
+                    DbContext.SaveChanges();
+                    eventForMessage.UpdateSignupsOnMessageAsync(message);
+
+                    await user.SendMessageAsync($"Sorry, you were placed in reserve for {eventForMessage.EventName} because we don't need any more {role.GetEmoji()}'s");
                 }
             }
 
