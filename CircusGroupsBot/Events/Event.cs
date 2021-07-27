@@ -305,7 +305,15 @@ Leader: <@{LeaderUserID}>
                     }
                     if (signup.IsFilled())
                     {
-                        messageStr += $"<@{signup.UserId}>";
+                        var user = await message.Channel.GetUserAsync(signup.UserId);
+                        if (user != null)
+                        {
+                            messageStr += $"{user.Mention}";
+                        }
+                        else
+                        {
+                            messageStr += $"Unknown User";
+                        }
                     }
                     messageStr += "\n";
                 }

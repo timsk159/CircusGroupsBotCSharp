@@ -110,6 +110,7 @@ namespace CircusGroupsBot.Modules
             var embed = GetEmbedForEvent(newEvent, leaderUser);
             var messageTask = ReplyAsync(message: "@everyone", embed: embed);
 
+            messageTask.ContinueWith(cont => cont.Result.PinAsync());
             messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
             messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(cont.Result));
 
