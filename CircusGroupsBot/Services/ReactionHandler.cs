@@ -69,11 +69,12 @@ namespace CircusGroupsBot.Services
 
                         if (wasFull && !eventForMessage.IsFull())
                         {
-                            var leaderMsg = $"Your event {eventForMessage.EventName} is no longer full, as {user.Mention} is no longer joining";
+                            var leaderMsg = $"Your event {eventForMessage.EventName} is no longer full, as {user.Username} is no longer joining";
                             nextReserve = eventForMessage.GetNextReserve();
                             if (nextReserve != null)
                             {
-                                leaderMsg += $"\nAs <@{nextReserve.UserId}> is the first reserve, they have been notified";
+                                var nextReserveUser = await message.Channel.GetUserAsync(nextReserve.UserId);
+                                leaderMsg += $"\nAs {nextReserveUser.Username} is the first reserve, they have been notified";
                             }
 
                             var leaderUser = await channel.GetUserAsync(eventForMessage.LeaderUserID);

@@ -308,7 +308,7 @@ Leader: <@{LeaderUserID}>
                         var user = await message.Channel.GetUserAsync(signup.UserId);
                         if (user != null)
                         {
-                            messageStr += $"{user.Mention}";
+                            messageStr += $"{user.Username}";
                         }
                         else
                         {
