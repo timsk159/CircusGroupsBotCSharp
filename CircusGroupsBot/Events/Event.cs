@@ -286,7 +286,7 @@ Leader: <@{LeaderUserID}>
             Signups = newEvent.Signups;
         }
 
-        async public void UpdateSignupsOnMessageAsync(IUserMessage message)
+        async public void UpdateSignupsOnMessageAsync(IUserMessage message, IGuild Guild)
         {
             if (message != null)
             {
@@ -305,10 +305,10 @@ Leader: <@{LeaderUserID}>
                     }
                     if (signup.IsFilled())
                     {
-                        var user = await message.Channel.GetUserAsync(signup.UserId);
+                        var user = await Guild.GetUserAsync(signup.UserId);
                         if (user != null)
                         {
-                            messageStr += $"{user.Username}";
+                            messageStr += $"{user.Nickname}";
                         }
                         else
                         {

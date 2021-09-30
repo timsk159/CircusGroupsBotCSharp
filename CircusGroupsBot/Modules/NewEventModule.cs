@@ -109,9 +109,9 @@ namespace CircusGroupsBot.Modules
         {
             var embed = GetEmbedForEvent(newEvent, leaderUser);
             var messageTask = ReplyAsync(message: "@everyone", embed: embed);
-
+            
             messageTask.ContinueWith(cont => cont.Result.PinAsync());
-            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result));
+            messageTask.ContinueWith(cont => newEvent.UpdateSignupsOnMessageAsync(cont.Result, Context.Guild));
             messageTask.ContinueWith(cont => newEvent.AddReactionsToMessageAsync(cont.Result));
 
             Logger.Log(new LogMessage(LogSeverity.Verbose, "NewEvent", $"Assigning event with ID {newEvent.EventId} a messageID of {messageTask.Result.Id}"));
@@ -171,7 +171,7 @@ namespace CircusGroupsBot.Modules
             DbContext.SaveChanges();
 
             var messageTask = eventMessage.ModifyAsync(e => e.Embed = GetEmbedForEvent(existingEvent, leaderUser));
-            messageTask.ContinueWith(cont => existingEvent.UpdateSignupsOnMessageAsync(eventMessage));
+            messageTask.ContinueWith(cont => existingEvent.UpdateSignupsOnMessageAsync(eventMessage, Context.Guild));
             messageTask.ContinueWith(cont => existingEvent.AddReactionsToMessageAsync(eventMessage));
             return messageTask;
         }

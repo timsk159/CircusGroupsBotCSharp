@@ -47,7 +47,7 @@ namespace CircusGroupsBot.Services
                 if (existingSignup != null)
                 {
                     //If someone is a role-specific-reserve, we only remove their signup if they hit the role emoji, not the reserve emoji.
-                    if(role == Role.Reserve && existingSignup.ReserveRole != Role.None)
+                    if (role == Role.Reserve && existingSignup.ReserveRole != Role.None)
                     {
                         return;
                     }
@@ -57,8 +57,10 @@ namespace CircusGroupsBot.Services
 
                     eventForMessage.RemoveSignup(existingSignup);
                     DbContext.SaveChanges();
-
-                    eventForMessage.UpdateSignupsOnMessageAsync(message);
+                    if (channel is IGuildChannel guildChannel)
+                    {
+                        eventForMessage.UpdateSignupsOnMessageAsync(message, guildChannel.Guild);
+                    }
 
                     var user = await channel.GetUserAsync(reaction.UserId);
                     if (user != null)
@@ -134,8 +136,10 @@ namespace CircusGroupsBot.Services
                 {
                     DbContext.SaveChanges();
 
-                    eventForMessage.UpdateSignupsOnMessageAsync(message);
-
+                    if (channel is IGuildChannel guildChannel)
+                    {
+                        eventForMessage.UpdateSignupsOnMessageAsync(message, guildChannel.Guild);
+                    }
                     var msgTask = user.SendMessageAsync($"You successfully signed up to {eventForMessage.EventName} as {role.GetEmoji()}. Have fun!");
 
                     if (eventForMessage.IsFull() && !wasFull)
@@ -151,7 +155,10 @@ namespace CircusGroupsBot.Services
                     var signup = new Signup(Role.Reserve, role, false, DateTime.Now, reaction.UserId);
                     eventForMessage.TryAddSignup(signup);
                     DbContext.SaveChanges();
-                    eventForMessage.UpdateSignupsOnMessageAsync(message);
+                    if (channel is IGuildChannel guildChannel)
+                    {
+                        eventForMessage.UpdateSignupsOnMessageAsync(message, guildChannel.Guild);
+                    }
 
                     await user.SendMessageAsync($"Sorry, you were placed in reserve for {eventForMessage.EventName} because we don't need any more {role.GetEmoji()}'s");
                 }
