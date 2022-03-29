@@ -49,3 +49,16 @@ TODO
  - Go to store 
  - Buy a different computer
  - See "Windows" or "Linux"
+
+
+For tims sanity, this is how to update the bot:
+  - Make sure environment variables are set:
+      - export circusBotToken={BotToken}
+      - export dbuser=admin
+      - export dbpass={pass}
+  - do a git pull
+  - dotnet publish CircusGroupsBot
+  - dotnet migrate CircusGroupsBot
+  - nohup ./CircusGroupsBot &
+
+Now I won't spend an hour re-remembering this twice a year
